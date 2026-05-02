@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INBOX.IQ — Control Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sidebar-w: 230px;
+  --bg: #f7f8fa;
+  --white: #ffffff;
+  --border: #e8eaed;
+  --border2: #d1d5db;
+  --text: #111827;
+  --text-2: #374151;
+  --text-3: #6b7280;
+  --text-4: #9ca3af;
+  --blue: #1d4ed8;
+  --blue-light: #eff6ff;
+  --blue-mid: #3b82f6;
+  --positive: #059669;
+  --positive-bg: #ecfdf5;
+  --positive-border: #a7f3d0;
+  --negative: #dc2626;
+  --negative-bg: #fef2f2;
+  --negative-border: #fecaca;
+  --neutral: #d97706;
+  --neutral-bg: #fffbeb;
+  --neutral-border: #fde68a;
+  --gold: #f59e0b;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.08);
+}
+
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+/* ── SIDEBAR ───────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--blue);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 15px; font-weight: 800;
+  flex-shrink: 0;
+}
+.logo-text { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.logo-text span { color: var(--blue); }
+
+.sidebar-nav { padding: 12px 10px; flex: 1; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-3);
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: var(--bg); color: var(--text); }
+.nav-item.active { background: var(--blue-light); color: var(--blue); }
+.nav-icon { width: 18px; text-align: center; flex-shrink: 0; }
+
+.sidebar-section-label {
+  font-size: 10px; font-weight: 600; color: var(--text-4);
+  text-transform: uppercase; letter-spacing: .8px;
+  padding: 12px 12px 4px;
+}
+
+/* Account items */
+.account-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-radius: var(--radius-sm);
+  cursor: pointer; transition: all .15s;
+  margin-bottom: 1px;
+}
+.account-item:hover { background: var(--bg); }
+.account-item.selected { background: var(--blue-light); }
+.account-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; }
+.account-label { flex: 1; min-width: 0; }
+.account-name-txt { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.account-sub { font-size: 10px; color: var(--text-4); }
+.account-check { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; }
+.account-item.selected .account-check { background: var(--blue); border-color: var(--blue); color: white; }
+.account-del { opacity: 0; width: 18px; height: 18px; border-radius: 3px; background: var(--negative-bg); border: none; color: var(--negative); cursor: pointer; font-size: 11px; flex-shrink: 0; }
+.account-item:hover .account-del { opacity: 1; }
+
+.sidebar-footer {
+  padding: 12px 10px;
+  border-top: 1px solid var(--border);
+}
+.btn-add-acc {
+  width: 100%; padding: 8px 12px;
+  background: none; border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-sm); color: var(--text-3);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all .15s; font-family: inherit;
+}
+.btn-add-acc:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+
+.sidebar-user {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.user-email { font-size: 11px; color: var(--text-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.btn-signout { font-size: 11px; color: var(--text-4); background: none; border: none; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 4px; }
+.btn-signout:hover { color: var(--negative); }
+
+/* ── MAIN ──────────────────────────────────────────── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* ── TOPBAR ────────────────────────────────────────── */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 56px;
+  display: flex; align-items: center; gap: 16px;
+  flex-shrink: 0;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+.topbar-date { font-size: 11px; font-weight: 600; color: var(--text-4); letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; }
+.topbar-divider { width: 1px; height: 20px; background: var(--border); }
+.topbar-title { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -.5px; }
+
+.topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.date-input {
+  padding: 6px 10px; font-size: 12px; font-family: inherit;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text-2); background: var(--white); cursor: pointer;
+  height: 34px;
+}
+.date-input:focus { outline: none; border-color: var(--blue-mid); }
+.date-arrow { color: var(--text-4); font-size: 12px; }
+
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px; height: 34px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; font-family: inherit; transition: all .15s; white-space: nowrap; }
+.btn-outline { background: var(--white); border-color: var(--border); color: var(--text-2); }
+.btn-outline:hover { border-color: var(--border2); background: var(--bg); }
+.btn-sync { background: var(--white); border-color: var(--border); color: var(--text-2); }
+.btn-sync:hover { border-color: var(--blue-mid); color: var(--blue); }
+.btn-sync.syncing .sync-icon { animation: spin 1s linear infinite; display: inline-block; }
+.btn-primary { background: var(--blue); border-color: var(--blue); color: white; }
+.btn-primary:hover { background: #1e40af; }
+.btn-export { background: var(--blue); color: white; border-color: var(--blue); }
+.btn-export:hover { background: #1e40af; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── CONTENT ───────────────────────────────────────── */
+.content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── STAT CARDS ────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  box-shadow: var(--shadow); position: relative;
+}
+.stat-label { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 30px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+.stat-sub { font-size: 12px; color: var(--text-3); }
+.stat-card.total .stat-value { color: var(--text); }
+.stat-card.positive .stat-value { color: var(--positive); }
+.stat-card.negative .stat-value { color: var(--negative); }
+.stat-card.neutral .stat-value { color: var(--neutral); }
+.stat-badge { position: absolute; top: 16px; right: 16px; font-size: 20px; }
+.stat-pct { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-left: 6px; }
+.stat-card.positive .stat-pct { background: var(--positive-bg); color: var(--positive); }
+.stat-card.negative .stat-pct { background: var(--negative-bg); color: var(--negative); }
+.stat-card.neutral  .stat-pct { background: var(--neutral-bg); color: var(--neutral); }
+
+/* ── CARD ──────────────────────────────────────────── */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.card-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text-4); margin-bottom: 2px; }
+.card-title { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: var(--text); }
+.card-body { padding: 20px; }
+
+/* ── GRID LAYOUTS ──────────────────────────────────── */
+.grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 20px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+.mb-20 { margin-bottom: 20px; }
+
+/* ── TREND CHART ───────────────────────────────────── */
+.chart-wrap { position: relative; }
+
+/* ── SUBJECT LINE BARS ─────────────────────────────── */
+.subject-bar-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.subject-bar-row:last-child { border-bottom: none; }
+.subject-name { width: 190px; font-size: 12px; color: var(--text-2); text-align: right; flex-shrink: 0; line-height: 1.3; }
+.subject-track { flex: 1; height: 12px; background: var(--bg); border-radius: 6px; overflow: hidden; position: relative; }
+.subject-fill { height: 100%; border-radius: 6px; background: var(--blue); transition: width .7s cubic-bezier(.4,0,.2,1); min-width: 4px; }
+.subject-pct { width: 38px; font-size: 12px; font-weight: 600; color: var(--text-2); flex-shrink: 0; }
+.subject-cnt { width: 32px; font-size: 11px; color: var(--text-4); flex-shrink: 0; text-align: right; }
+
+/* ── SMART SUGGESTIONS ─────────────────────────────── */
+.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+.ai-badge { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--gold); background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; padding: 2px 8px; }
+
+.intel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.intel-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; }
+.intel-label { font-size: 10px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.intel-value { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); line-height: 1.1; }
+.intel-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+.suggestion-item {
+  display: flex; gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-2); line-height: 1.5;
+}
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-dot { width: 20px; height: 20px; background: var(--neutral-bg); border: 1px solid var(--neutral-border); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; margin-top: 1px; }
+
+.phrase-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.phrase-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--positive-bg); border: 1px solid var(--positive-border);
+  color: var(--positive); font-size: 12px; font-weight: 500;
+  padding: 3px 10px; border-radius: 20px;
+}
+.phrase-tag .cnt { font-size: 10px; color: var(--positive); opacity: .7; }
+.phrase-tag.neg { background: var(--negative-bg); border-color: var(--negative-border); color: var(--negative); }
+.phrase-tag.neg .cnt { color: var(--negative); }
+
+/* ── DOMAIN TABLE ──────────────────────────────────── */
+.domain-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.domain-row:last-child { border-bottom: none; }
+.domain-favicon { width: 24px; height: 24px; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; overflow: hidden; }
+.domain-favicon img { width: 100%; height: 100%; object-fit: contain; }
+.domain-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.domain-bar-wrap { width: 80px; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.domain-bar { height: 100%; background: var(--blue-mid); border-radius: 3px; transition: width .6s ease; }
+.domain-cnt { font-size: 12px; font-weight: 600; color: var(--text-2); width: 28px; text-align: right; }
+.domain-sent { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 10px; flex-shrink: 0; }
+.domain-sent.positive { background: var(--positive-bg); color: var(--positive); }
+.domain-sent.negative { background: var(--negative-bg); color: var(--negative); }
+.domain-sent.neutral  { background: var(--neutral-bg);  color: var(--neutral); }
+
+/* ── ACCOUNT BREAKDOWN ─────────────────────────────── */
+.breakdown-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+.breakdown-info { flex: 1; min-width: 0; }
+.breakdown-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.breakdown-email-txt { font-size: 11px; color: var(--text-4); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.breakdown-bars { flex: 2; display: flex; flex-direction: column; gap: 3px; }
+.bar-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; display: flex; gap: 1px; }
+.bar-seg { height: 100%; border-radius: 2px; transition: width .6s ease; }
+.bar-seg.pos { background: var(--positive); }
+.bar-seg.neg { background: var(--negative); }
+.bar-seg.neu { background: var(--neutral); }
+.breakdown-counts { display: flex; gap: 10px; font-size: 11px; }
+.bcount { display: flex; align-items: center; gap: 3px; }
+.bcount-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.score-chip { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+.score-chip.pos { background: var(--positive-bg); color: var(--positive); }
+.score-chip.neg { background: var(--negative-bg); color: var(--negative); }
+.score-chip.neu { background: var(--neutral-bg); color: var(--neutral); }
+
+/* ── INBOX VIEW ────────────────────────────────────── */
+.inbox-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.search-wrap { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 12px; }
+.search-wrap input { background: none; border: none; outline: none; font-size: 13px; color: var(--text); font-family: inherit; flex: 1; }
+.search-wrap input::placeholder { color: var(--text-4); }
+.filter-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text-3); transition: all .15s; font-family: inherit; }
+.filter-pill:hover { border-color: var(--border2); color: var(--text); }
+.filter-pill.active.all { background: #eff6ff; border-color: #bfdbfe; color: var(--blue); }
+.filter-pill.active.positive { background: var(--positive-bg); border-color: var(--positive-border); color: var(--positive); }
+.filter-pill.active.negative { background: var(--negative-bg); border-color: var(--negative-border); color: var(--negative); }
+.filter-pill.active.neutral { background: var(--neutral-bg); border-color: var(--neutral-border); color: var(--neutral); }
+
+.email-list { display: flex; flex-direction: column; gap: 4px; }
+.email-row {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 16px; display: flex; gap: 12px; cursor: pointer; transition: all .12s;
+}
+.email-row:hover { border-color: var(--border2); box-shadow: var(--shadow); }
+.email-row.selected { border-color: var(--blue-mid); background: var(--blue-light); }
+.email-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: white; flex-shrink: 0; }
+.email-body { flex: 1; min-width: 0; }
+.email-from { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.email-subj { font-size: 13px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.email-snippet { font-size: 12px; color: var(--text-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.email-date { font-size: 11px; color: var(--text-4); }
+.sent-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; text-transform: capitalize; }
+.sent-badge.positive { background: var(--positive-bg); color: var(--positive); }
+.sent-badge.negative { background: var(--negative-bg); color: var(--negative); }
+.sent-badge.neutral { background: var(--neutral-bg); color: var(--neutral); }
+.acc-tag { font-size: 10px; color: var(--text-4); background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+
+/* pagination */
+.pagination { display: flex; align-items: center; gap: 4px; justify-content: center; margin-top: 14px; }
+.page-btn { width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--white); color: var(--text-3); font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: all .12s; }
+.page-btn:hover { border-color: var(--blue-mid); color: var(--blue); }
+.page-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
+.page-btn:disabled { opacity: .4; pointer-events: none; }
+
+/* ── DETAIL PANEL ──────────────────────────────────── */
+.detail-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 460px;
+  background: var(--white); border-left: 1px solid var(--border);
+  z-index: 100; display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform .28s cubic-bezier(.4,0,.2,1);
+  box-shadow: -8px 0 32px rgba(0,0,0,.08);
+}
+.detail-panel.open { transform: translateX(0); }
+.detail-hd { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
+.detail-close { width: 28px; height: 28px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); color: var(--text-3); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+.detail-subj { font-weight: 600; font-size: 14px; line-height: 1.4; flex: 1; }
+.detail-meta { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.dmeta-row { display: flex; gap: 8px; font-size: 12px; margin-bottom: 5px; }
+.dmeta-label { color: var(--text-4); min-width: 55px; }
+.dmeta-val { color: var(--text-2); flex: 1; }
+.detail-sentiment { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.ds-title { font-size: 11px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.sbar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+.sbar-label { width: 60px; color: var(--text-3); }
+.sbar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+.sbar-fill { height: 100%; border-radius: 4px; transition: width .5s ease; }
+.sbar-fill.pos { background: var(--positive); }
+.sbar-fill.neg { background: var(--negative); }
+.sbar-fill.neu { background: var(--neutral); }
+.sbar-val { width: 34px; text-align: right; color: var(--text-4); font-size: 11px; }
+.detail-body { flex: 1; overflow-y: auto; padding: 14px 18px; font-size: 13px; line-height: 1.7; color: var(--text-2); white-space: pre-wrap; word-break: break-word; }
+
+/* ── MODAL ─────────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); backdrop-filter: blur(2px); z-index: 200; display: none; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 14px; padding: 28px; width: 440px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,.15); border: 1px solid var(--border); }
+.modal h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.modal-subtitle { font-size: 13px; color: var(--text-3); margin-bottom: 20px; line-height: 1.6; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .4px; }
+.form-input { width: 100%; padding: 9px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; font-family: inherit; transition: border-color .15s; }
+.form-input:focus { outline: none; border-color: var(--blue-mid); background: var(--white); }
+.form-hint { font-size: 11px; color: var(--text-4); margin-top: 4px; line-height: 1.4; }
+.form-error { display: none; background: var(--negative-bg); border: 1px solid var(--negative-border); border-radius: var(--radius-sm); color: var(--negative); font-size: 12px; padding: 8px 12px; margin-top: 10px; }
+.form-actions { display: flex; gap: 8px; margin-top: 20px; }
+
+/* ── TOAST ─────────────────────────────────────────── */
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--text); color: white; border-radius: 8px; padding: 10px 16px; font-size: 13px; z-index: 500; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-md); transform: translateY(60px); opacity: 0; transition: all .25s ease; max-width: 340px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: var(--positive); }
+.toast.error { background: var(--negative); }
+.toast.info { background: var(--blue); }
+
+/* ── EMPTY / LOADING ───────────────────────────────── */
+.loading-wrap { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px; color: var(--text-4); font-size: 14px; }
+.spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--blue-mid); border-radius: 50%; animation: spin .7s linear infinite; }
+.empty-state { text-align: center; padding: 48px 20px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state h3 { font-family: 'Syne', sans-serif; font-size: 16px; margin-bottom: 6px; color: var(--text); }
+.empty-state p { font-size: 13px; color: var(--text-3); max-width: 280px; margin: 0 auto; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">✦</div>
+    <div class="logo-text">INBOX<span>.IQ</span></div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="switchView('dashboard',this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchView('inbox',this)">
+      <span class="nav-icon">📥</span> Inbox
+    </div>
+    <div class="nav-item" onclick="switchView('intelligence',this)">
+      <span class="nav-icon">✦</span> AI Intelligence
+    </div>
+    <div class="nav-item" style="color:var(--text-4);pointer-events:none">
+      <span class="nav-icon">📣</span> Campaigns
+    </div>
+    <div class="nav-item" style="color:var(--text-4);pointer-events:none">
+      <span class="nav-icon">⚙️</span> Settings
+    </div>
+
+    <div class="sidebar-section-label" style="margin-top:8px">Accounts</div>
+    <div id="accountsList">
+      <div class="loading-wrap" style="padding:16px"><div class="spinner"></div></div>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="btn-add-acc" onclick="openAddModal()">+ Add Email Account</button>
+  </div>
+
+  <div class="sidebar-user" id="sidebarUser" style="display:none">
+    <div class="user-avatar" id="userAvatarEl">?</div>
+    <div class="user-info">
+      <div class="user-name" id="userNameEl">—</div>
+      <div class="user-email" id="userEmailEl">—</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-date" id="topbarDate">—</div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-title" id="topbarTitle">Control Room</div>
+    </div>
+    <div class="topbar-right">
+      <input type="date" class="date-input" id="dateFrom" title="From date">
+      <span class="date-arrow">→</span>
+      <input type="date" class="date-input" id="dateTo" title="To date">
+      <button class="btn btn-outline" onclick="clearDates()">Clear</button>
+      <button class="btn btn-outline" onclick="applyFilters()">Apply</button>
+      <button class="btn btn-sync" id="syncBtn" onclick="syncAll()">
+        <span class="sync-icon">↻</span> Sync
+      </button>
+      <button class="btn btn-export" onclick="exportCSV()">
+        ↓ Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ── DASHBOARD VIEW ── -->
+    <div class="view active" id="view-dashboard">
+      <!-- Stat Cards -->
+      <div class="stats-row">
+        <div class="stat-card total">
+          <div class="stat-label">Total Emails</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-sub">All synced inboxes</div>
+          <div class="stat-badge">📬</div>
+        </div>
+        <div class="stat-card positive">
+          <div class="stat-label">Positive Replies</div>
+          <div class="stat-value" id="statPositive">—<span class="stat-pct" id="posPct">—</span></div>
+          <div class="stat-sub">Enthusiastic responses</div>
+          <div class="stat-badge">😊</div>
+        </div>
+        <div class="stat-card negative">
+          <div class="stat-label">Negative Replies</div>
+          <div class="stat-value" id="statNegative">—<span class="stat-pct" id="negPct">—</span></div>
+          <div class="stat-sub">Issues & complaints</div>
+          <div class="stat-badge">😤</div>
+        </div>
+        <div class="stat-card neutral">
+          <div class="stat-label">Neutral Replies</div>
+          <div class="stat-value" id="statNeutral">—<span class="stat-pct" id="neuPct">—</span></div>
+          <div class="stat-sub">Transactional emails</div>
+          <div class="stat-badge">😐</div>
+        </div>
+      </div>
+
+      <!-- Trend + Donut -->
+      <div class="grid-2-1 mb-20">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-label">Activity</div>
+              <div class="card-title">Email Trend · Last 30 Days</div>
+            </div>
+          </div>
+          <div class="card-body" style="padding-top:12px">
+            <div style="height:200px;position:relative"><canvas id="trendChart"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-label">Overview</div>
+              <div class="card-title">Sentiment Split</div>
+            </div>
+          </div>
+          <div class="card-body" style="display:flex;align-items:center;justify-content:center;height:calc(200px + 40px)">
+            <canvas id="donutChart" style="max-height:240px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance + AI Summary -->
+      <div class="grid-2-1 mb-20">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-label">Performance</div>
+              <div class="card-title">Top Subject Lines · Reply Rate %</div>
+            </div>
+          </div>
+          <div class="card-body" id="subjectBars">
+            <div class="loading-wrap"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="ai-header">
+              <span class="ai-badge">✦ AI Intelligence</span>
+            </div>
+            <div class="card-title" style="margin-top:2px">Smart Suggestions</div>
+          </div>
+          <div class="card-body" id="smartPanel">
+            <div class="loading-wrap"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Domains + Account Breakdown -->
+      <div class="grid-2 mb-20">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-label">Sources</div>
+              <div class="card-title">Top Sender Domains</div>
+            </div>
+          </div>
+          <div class="card-body" id="domainsList">
+            <div class="loading-wrap"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-label">Breakdown</div>
+              <div class="card-title">Per-Account Sentiment</div>
+            </div>
+          </div>
+          <div class="card-body" id="breakdownList">
+            <div class="loading-wrap"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INBOX VIEW ── -->
+    <div class="view" id="view-inbox">
+      <div class="inbox-bar">
+        <div class="search-wrap">
+          <span style="color:var(--text-4)">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search emails…" oninput="debounceSearch()">
+        </div>
+        <button class="filter-pill all active" onclick="setFilter('',this)">All</button>
+        <button class="filter-pill positive" onclick="setFilter('positive',this)">😊 Positive</button>
+        <button class="filter-pill negative" onclick="setFilter('negative',this)">😤 Negative</button>
+        <button class="filter-pill neutral" onclick="setFilter('neutral',this)">😐 Neutral</button>
+      </div>
+      <div id="emailListWrap">
+        <div class="loading-wrap"><div class="spinner"></div> Loading…</div>
+      </div>
+      <div id="paginationWrap"></div>
+    </div>
+
+    <!-- ── AI INTELLIGENCE VIEW ── -->
+    <div class="view" id="view-intelligence">
+      <div class="grid-2 mb-20" id="intelTopCards">
+        <div class="loading-wrap"><div class="spinner"></div></div>
+      </div>
+      <div class="grid-2 mb-20">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Timing</div>
+            <div class="card-title">Emails by Hour of Day</div>
+          </div>
+          <div class="card-body" style="height:200px;position:relative">
+            <canvas id="hourChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Timing</div>
+            <div class="card-title">Emails by Day of Week</div>
+          </div>
+          <div class="card-body" style="height:200px;position:relative">
+            <canvas id="dayChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2 mb-20">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Performance</div>
+            <div class="card-title">Subject Lines by Reply Rate</div>
+          </div>
+          <div class="card-body" id="intelSubjects">
+            <div class="loading-wrap"><div class="spinner"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Language Analysis</div>
+            <div class="card-title">Positive &amp; Negative Phrases</div>
+          </div>
+          <div class="card-body" id="phrasePanel">
+            <div class="loading-wrap"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-20">
+        <div class="card-header">
+          <div class="ai-header"><span class="ai-badge">✦ AI Intelligence</span></div>
+          <div class="card-title" style="margin-top:2px">All Smart Suggestions</div>
+        </div>
+        <div class="card-body" id="allSuggestions">
+          <div class="loading-wrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- EMAIL DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-hd">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-subj" id="detailSubj">—</div>
+  </div>
+  <div class="detail-meta" id="detailMeta"></div>
+  <div class="detail-sentiment">
+    <div class="ds-title">Sentiment Analysis <span class="sent-badge" id="detailSentBadge">neutral</span></div>
+    <div class="sbar-row">
+      <div class="sbar-label" style="color:var(--positive)">Positive</div>
+      <div class="sbar-track"><div class="sbar-fill pos" id="sbarPos" style="width:0%"></div></div>
+      <div class="sbar-val" id="sbarPosV">0%</div>
+    </div>
+    <div class="sbar-row">
+      <div class="sbar-label" style="color:var(--negative)">Negative</div>
+      <div class="sbar-track"><div class="sbar-fill neg" id="sbarNeg" style="width:0%"></div></div>
+      <div class="sbar-val" id="sbarNegV">0%</div>
+    </div>
+    <div class="sbar-row">
+      <div class="sbar-label" style="color:var(--neutral)">Neutral</div>
+      <div class="sbar-track"><div class="sbar-fill neu" id="sbarNeu" style="width:0%"></div></div>
+      <div class="sbar-val" id="sbarNeuV">0%</div>
+    </div>
+  </div>
+  <div class="detail-body" id="detailBody">—</div>
+</div>
+
+<!-- ADD ACCOUNT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>Add Email Account</h2>
+    <div class="modal-subtitle">Connect via IMAP using an <strong>App Password</strong> — not your regular password.<br>Gmail: myaccount.google.com → Security → App Passwords</div>
+    <div class="form-group">
+      <label class="form-label">Display Name (optional)</label>
+      <input type="text" class="form-input" id="inputName" placeholder="Work Gmail, Personal, etc.">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address *</label>
+      <input type="email" class="form-input" id="inputEmail" placeholder="you@gmail.com" oninput="autoDetect()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">App Password *</label>
+      <input type="password" class="form-input" id="inputPassword" placeholder="xxxx xxxx xxxx xxxx">
+      <div class="form-hint">Generate at myaccount.google.com/apppasswords</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">IMAP Server</label>
+      <input type="text" class="form-input" id="inputServer" placeholder="Auto-detected">
+      <div class="form-hint" id="serverHint">Auto-detects from email domain.</div>
+    </div>
+    <div class="form-error" id="addError"></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" id="addBtn" onclick="submitAdd()" style="flex:1">Connect Account</button>
+      <button class="btn btn-outline" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Constants ────────────────────────────────────────────────────────
+const COLORS = ['#1d4ed8','#7c3aed','#059669','#dc2626','#d97706','#0891b2','#be185d','#15803d'];
+const DAYS_SHORT = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const IMAP_MAP = {
+  'gmail.com':'imap.gmail.com','yahoo.com':'imap.mail.yahoo.com',
+  'outlook.com':'imap-mail.outlook.com','hotmail.com':'imap-mail.outlook.com',
+  'live.com':'imap-mail.outlook.com','icloud.com':'imap.mail.me.com',
+  'zoho.com':'imap.zoho.com','aol.com':'imap.aol.com',
+};
+const colorCache = {};
+function avatarColor(key) {
+  if (!colorCache[key]) colorCache[key] = COLORS[Object.keys(colorCache).length % COLORS.length];
+  return colorCache[key];
+}
+function initials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return (p[0][0]+(p[1]?.[0]||'')).toUpperCase();
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function sentEmoji(s) { return {positive:'😊',negative:'😤',neutral:'😐'}[s]||'😐'; }
+function fmtDate(d) {
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en',{month:'short',day:'numeric'}) + ' ' +
+         dt.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── State ────────────────────────────────────────────────────────────
+const S = {
+  accounts: [], selected: [], view: 'dashboard',
+  filter: '', search: '', page: 1, dateFrom: '', dateTo: '',
+  charts: {}, searchTimer: null,
+};
+
+// ── Init ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  document.getElementById('topbarDate').textContent =
+    now.toLocaleDateString('en',{weekday:'long',month:'long',day:'numeric'}).toUpperCase();
+  loadAccounts();
+});
+
+// ── Accounts ─────────────────────────────────────────────────────────
+async function loadAccounts() {
+  const res = await fetch('/api/accounts');
+  S.accounts = await res.json();
+  if (S.accounts.length > 0 && S.selected.length === 0)
+    S.selected = S.accounts.map(a => a.id);
+  renderAccounts();
+  renderSidebarUser();
+  if (S.accounts.length > 0) {
+    loadStats();
+    if (S.view === 'inbox') loadEmails();
+    if (S.view === 'intelligence') loadIntelligence();
+  }
+}
+
+function renderAccounts() {
+  const el = document.getElementById('accountsList');
+  if (S.accounts.length === 0) {
+    el.innerHTML = `<div style="padding:12px 12px;font-size:12px;color:var(--text-4);line-height:1.6">No accounts yet.<br>Add one below.</div>`;
+    return;
+  }
+  el.innerHTML = S.accounts.map(a => {
+    const col = avatarColor(a.email);
+    const sel = S.selected.includes(a.id);
+    const n   = a.total_emails || 0;
+    return `<div class="account-item ${sel?'selected':''}" onclick="toggleAccount(${a.id})" id="ai-${a.id}">
+      <div class="account-dot" style="background:${col}">${initials(a.display_name||a.email)}</div>
+      <div class="account-label">
+        <div class="account-name-txt">${esc(a.display_name||a.email.split('@')[0])}</div>
+        <div class="account-sub">${n} emails</div>
+      </div>
+      <div class="account-check">${sel?'✓':''}</div>
+      <button class="account-del" onclick="event.stopPropagation();delAccount(${a.id})" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderSidebarUser() {
+  if (S.accounts.length === 0) return;
+  const a = S.accounts[0];
+  document.getElementById('sidebarUser').style.display = 'flex';
+  document.getElementById('userAvatarEl').textContent = initials(a.display_name||a.email);
+  document.getElementById('userNameEl').textContent = a.display_name || a.email.split('@')[0];
+  document.getElementById('userEmailEl').textContent = a.email;
+}
+
+function toggleAccount(id) {
+  if (S.selected.includes(id)) {
+    if (S.selected.length === 1) return;
+    S.selected = S.selected.filter(x => x !== id);
+  } else {
+    S.selected.push(id);
+  }
+  renderAccounts();
+  refresh();
+}
+
+async function delAccount(id) {
+  if (!confirm('Remove this account? All synced emails will be deleted.')) return;
+  await fetch(`/api/accounts/${id}`, {method:'DELETE'});
+  S.selected = S.selected.filter(x => x !== id);
+  toast('Account removed', 'info');
+  loadAccounts();
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────
+function openAddModal() {
+  ['inputName','inputEmail','inputPassword','inputServer'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('addError').style.display='none';
+  document.getElementById('serverHint').textContent='Auto-detects from email domain.';
+  document.getElementById('addModal').classList.add('open');
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+function autoDetect() {
+  const e = document.getElementById('inputEmail').value;
+  const d = e.split('@')[1]?.toLowerCase();
+  const s = IMAP_MAP[d]||(d?`imap.${d}`:'');
+  document.getElementById('inputServer').value = s;
+  document.getElementById('serverHint').textContent = s?`Detected: ${s}`:'Auto-detects from email domain.';
+}
+async function submitAdd() {
+  const btn = document.getElementById('addBtn');
+  const err = document.getElementById('addError');
+  const email = document.getElementById('inputEmail').value.trim();
+  const pass  = document.getElementById('inputPassword').value.trim();
+  const name  = document.getElementById('inputName').value.trim();
+  const srv   = document.getElementById('inputServer').value.trim();
+  if (!email||!pass) { err.style.display='block'; err.textContent='Email and app password are required.'; return; }
+  btn.textContent='Connecting…'; btn.disabled=true; err.style.display='none';
+  try {
+    const res  = await fetch('/api/accounts',{method:'POST',headers:{'Content-Type':'application/json'},
+                              body:JSON.stringify({email,app_password:pass,display_name:name,imap_server:srv})});
+    const data = await res.json();
+    if (!res.ok) { err.style.display='block'; err.textContent=data.error||'Failed to connect.'; }
+    else {
+      closeAddModal();
+      toast('✅ Account connected! Starting sync…','success');
+      await loadAccounts();
+      syncAccount(data.account.id);
+    }
+  } catch(e) { err.style.display='block'; err.textContent='Connection failed. Check server address.'; }
+  btn.textContent='Connect Account'; btn.disabled=false;
+}
+
+// ── Sync ─────────────────────────────────────────────────────────────
+async function syncAccount(id) {
+  const res  = await fetch(`/api/sync/${id}`,{method:'POST'});
+  const data = await res.json();
+  if (data.success) { toast('🔄 '+data.message,'info'); pollSync(id); }
+}
+async function syncAll() {
+  const btn = document.getElementById('syncBtn');
+  btn.classList.add('syncing');
+  await fetch('/api/sync/all',{method:'POST'});
+  toast('🔄 Syncing all accounts…','info');
+  setTimeout(()=>{ btn.classList.remove('syncing'); refresh(); loadAccounts(); }, 10000);
+}
+function pollSync(id) {
+  let n=0;
+  const t = setInterval(async()=>{
+    n++;
+    if (n>20) { clearInterval(t); return; }
+    const r = await fetch(`/api/sync/status/${id}`);
+    const d = await r.json();
+    const a = S.accounts.find(x=>x.id===id);
+    if (a) { a.total_emails=d.total_emails; a.last_synced=d.last_synced; }
+    renderAccounts();
+    if (n>4) { clearInterval(t); refresh(); toast(`✅ Sync complete! ${d.total_emails} emails.`,'success'); }
+  },3000);
+}
+
+// ── Export ────────────────────────────────────────────────────────────
+function exportCSV() {
+  const p = buildParams();
+  window.location = '/api/export/csv?' + p;
+}
+
+// ── Views ─────────────────────────────────────────────────────────────
+function switchView(view, navEl) {
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  navEl.classList.add('active');
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  S.view = view;
+  const titles = {dashboard:'Control Room', inbox:'Inbox', intelligence:'AI Intelligence'};
+  document.getElementById('topbarTitle').textContent = titles[view]||view;
+  if (view==='inbox') loadEmails();
+  if (view==='intelligence') loadIntelligence();
+  closeDetail();
+}
+
+function applyFilters() {
+  S.dateFrom = document.getElementById('dateFrom').value;
+  S.dateTo   = document.getElementById('dateTo').value;
+  S.page = 1;
+  refresh();
+}
+function clearDates() {
+  document.getElementById('dateFrom').value='';
+  document.getElementById('dateTo').value='';
+  S.dateFrom=''; S.dateTo=''; refresh();
+}
+function refresh() {
+  loadStats();
+  if (S.view==='inbox') loadEmails();
+  if (S.view==='intelligence') loadIntelligence();
+}
+
+function buildParams() {
+  const p = new URLSearchParams();
+  S.selected.forEach(id=>p.append('accounts[]',id));
+  if (S.dateFrom) p.append('date_from',S.dateFrom);
+  if (S.dateTo)   p.append('date_to',S.dateTo);
+  return p.toString();
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────
+async function loadStats() {
+  if (!S.accounts.length) return;
+  const res  = await fetch('/api/stats?'+buildParams());
+  const data = await res.json();
+  renderStatCards(data);
+  renderTrend(data.trend);
+  renderDonut(data.positive, data.negative, data.neutral);
+  renderSubjectBars(data.top_subjects);
+  renderDomains(data.top_domains);
+  renderBreakdown(data.by_account);
+  // Also load intelligence for smart panel
+  loadSmartPanel();
+}
+
+function renderStatCards(d) {
+  const total = d.total||0;
+  document.getElementById('statTotal').childNodes[0].textContent = total.toLocaleString();
+  document.getElementById('statPositive').childNodes[0].textContent = d.positive.toLocaleString();
+  document.getElementById('statNegative').childNodes[0].textContent = d.negative.toLocaleString();
+  document.getElementById('statNeutral').childNodes[0].textContent  = d.neutral.toLocaleString();
+  if (total>0) {
+    document.getElementById('posPct').textContent = Math.round(d.positive/total*100)+'%';
+    document.getElementById('negPct').textContent = Math.round(d.negative/total*100)+'%';
+    document.getElementById('neuPct').textContent = Math.round(d.neutral/total*100)+'%';
+  }
+}
+
+function renderTrend(trend) {
+  const ctx = document.getElementById('trendChart');
+  if (S.charts.trend) S.charts.trend.destroy();
+  S.charts.trend = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: trend.map(t=>{const d=new Date(t.day); return d.toLocaleDateString('en',{month:'short',day:'numeric'});}),
+      datasets:[
+        {label:'Positive',data:trend.map(t=>t.positive),borderColor:'#059669',backgroundColor:'rgba(5,150,105,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:2},
+        {label:'Negative',data:trend.map(t=>t.negative),borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.06)',fill:true,tension:.4,borderWidth:2,pointRadius:2},
+        {label:'Neutral', data:trend.map(t=>t.neutral), borderColor:'#d97706',backgroundColor:'rgba(217,119,6,.05)', fill:true,tension:.4,borderWidth:2,pointRadius:2},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:'#6b7280',boxWidth:10,font:{size:11},padding:12}}},
+      scales:{
+        x:{ticks:{color:'#9ca3af',font:{size:10},maxTicksLimit:8},grid:{color:'#f3f4f6'}},
+        y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'},beginAtZero:true}
+      }
+    }
+  });
+}
+
+function renderDonut(pos, neg, neu) {
+  const ctx = document.getElementById('donutChart');
+  if (S.charts.donut) S.charts.donut.destroy();
+  S.charts.donut = new Chart(ctx,{
+    type:'doughnut',
+    data:{
+      labels:['Positive','Negative','Neutral'],
+      datasets:[{data:[pos,neg,neu],backgroundColor:['#059669','#dc2626','#d97706'],borderColor:'#ffffff',borderWidth:3,hoverOffset:4}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'64%',
+      plugins:{legend:{position:'bottom',labels:{color:'#6b7280',boxWidth:10,font:{size:11},padding:14}}}}
+  });
+}
+
+function renderSubjectBars(subjects) {
+  const el = document.getElementById('subjectBars');
+  if (!subjects||!subjects.length) { el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><p>Sync emails to see subject performance.</p></div>`; return; }
+  const maxPct = Math.max(...subjects.map(s=>s.reply_rate||0), 1);
+  el.innerHTML = subjects.slice(0,8).map(s=>{
+    const pct = s.reply_rate||0;
+    const w   = Math.round(pct/maxPct*100);
+    const lbl = (s.subj||'(No Subject)').substring(0,38)+(s.subj?.length>38?'…':'');
+    return `<div class="subject-bar-row">
+      <div class="subject-name">${esc(lbl)}</div>
+      <div class="subject-track"><div class="subject-fill" style="width:${w}%"></div></div>
+      <div class="subject-pct">${pct}%</div>
+      <div class="subject-cnt">${s.cnt}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderDomains(domains) {
+  const el = document.getElementById('domainsList');
+  if (!domains||!domains.length) { el.innerHTML=`<div class="empty-state"><p>No domain data yet.</p></div>`; return; }
+  const max = domains[0]?.cnt||1;
+  el.innerHTML = domains.map(d=>{
+    const w    = Math.round(d.cnt/max*100);
+    const sent = d.avg_score>0.05?'positive':(d.avg_score<-0.05?'negative':'neutral');
+    const sentLabel = {positive:'Pos',negative:'Neg',neutral:'Neu'}[sent];
+    return `<div class="domain-row">
+      <div class="domain-favicon"><img src="https://www.google.com/s2/favicons?domain=${esc(d.domain)}&sz=32" onerror="this.parentNode.innerHTML='🌐'"></div>
+      <div class="domain-name">${esc(d.domain)}</div>
+      <div class="domain-bar-wrap"><div class="domain-bar" style="width:${w}%"></div></div>
+      <div class="domain-cnt">${d.cnt}</div>
+      <div class="domain-sent ${sent}">${sentLabel}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderBreakdown(accounts) {
+  const el = document.getElementById('breakdownList');
+  if (!accounts||!accounts.length) { el.innerHTML=`<div class="empty-state"><p>No account data.</p></div>`; return; }
+  el.innerHTML = accounts.map(a=>{
+    const total = a.total||1;
+    const pp = Math.round(a.positive/total*100);
+    const np = Math.round(a.negative/total*100);
+    const col = avatarColor(a.email);
+    const sc  = a.avg_score||0;
+    const scClass = sc>0.05?'pos':(sc<-0.05?'neg':'neu');
+    return `<div class="breakdown-row">
+      <div class="breakdown-dot" style="background:${col}">${initials(a.display_name||a.email)}</div>
+      <div class="breakdown-info">
+        <div class="breakdown-name">${esc(a.display_name||a.email.split('@')[0])}</div>
+        <div class="breakdown-email-txt">${esc(a.email)}</div>
+      </div>
+      <div class="breakdown-bars">
+        <div class="bar-track">
+          <div class="bar-seg pos" style="width:${pp}%;flex:none"></div>
+          <div class="bar-seg neg" style="width:${np}%;flex:none"></div>
+          <div class="bar-seg neu" style="width:${100-pp-np}%;flex:none"></div>
+        </div>
+        <div class="breakdown-counts">
+          <span class="bcount"><span class="bcount-dot" style="background:var(--positive)"></span><span style="color:var(--positive)">${a.positive}</span></span>
+          <span class="bcount"><span class="bcount-dot" style="background:var(--negative)"></span><span style="color:var(--negative)">${a.negative}</span></span>
+          <span class="bcount"><span class="bcount-dot" style="background:var(--neutral)"></span><span style="color:var(--neutral)">${a.neutral}</span></span>
+        </div>
+      </div>
+      <div class="score-chip ${scClass}">${sc>=0?'+':''}${sc.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Smart panel (dashboard) ───────────────────────────────────────────
+async function loadSmartPanel() {
+  const res  = await fetch('/api/intelligence?'+buildParams());
+  const data = await res.json();
+  const el   = document.getElementById('smartPanel');
+
+  el.innerHTML = `
+    <div class="intel-grid">
+      <div class="intel-card">
+        <div class="intel-label">Best Hour</div>
+        <div class="intel-value">${data.best_hour}</div>
+        <div class="intel-sub">${data.best_hour_replies} positive replies</div>
+      </div>
+      <div class="intel-card">
+        <div class="intel-label">Best Day</div>
+        <div class="intel-value" style="font-size:20px">${data.best_day}</div>
+        <div class="intel-sub">${data.best_day_replies} positive replies</div>
+      </div>
+    </div>
+    <div>
+      ${data.suggestions.map(s=>`
+        <div class="suggestion-item">
+          <div class="suggestion-dot">💡</div>
+          <div>${esc(s)}</div>
+        </div>`).join('')||'<div style="color:var(--text-4);font-size:13px;padding:8px 0">Sync more emails to generate suggestions.</div>'}
+    </div>
+    ${data.positive_phrases.length?`
+    <div style="margin-top:14px">
+      <div style="font-size:10px;font-weight:600;color:var(--text-4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Phrases in Positive Replies</div>
+      <div class="phrase-tags">${data.positive_phrases.slice(0,6).map(p=>`<span class="phrase-tag">${esc(p.phrase)} <span class="cnt">×${p.count}</span></span>`).join('')}</div>
+    </div>`:''}`;
+}
+
+// ── Intelligence View ─────────────────────────────────────────────────
+async function loadIntelligence() {
+  const res  = await fetch('/api/intelligence?'+buildParams());
+  const data = await res.json();
+
+  // Top cards
+  document.getElementById('intelTopCards').innerHTML = `
+    <div class="card"><div class="card-body" style="padding:20px">
+      <div class="card-label">Best Hour to Reach</div>
+      <div style="font-family:Syne,sans-serif;font-size:42px;font-weight:800;color:var(--text);margin:8px 0">${data.best_hour}</div>
+      <div style="font-size:13px;color:var(--text-3)">${data.best_hour_replies} positive replies at this hour</div>
+    </div></div>
+    <div class="card"><div class="card-body" style="padding:20px">
+      <div class="card-label">Best Day to Reach</div>
+      <div style="font-family:Syne,sans-serif;font-size:42px;font-weight:800;color:var(--text);margin:8px 0">${data.best_day}</div>
+      <div style="font-size:13px;color:var(--text-3)">${data.best_day_replies} positive replies on this day</div>
+    </div></div>`;
+
+  // Hour chart
+  renderHourChart(data.hour_dist);
+  renderDayChart(data.day_dist);
+
+  // Subjects
+  const subEl = document.getElementById('intelSubjects');
+  if (data.subject_reply_rate.length) {
+    const maxR = Math.max(...data.subject_reply_rate.map(s=>s.reply_rate||0),1);
+    subEl.innerHTML = data.subject_reply_rate.map(s=>{
+      const w   = Math.round((s.reply_rate||0)/maxR*100);
+      const lbl = (s.subj||'').substring(0,40)+(s.subj?.length>40?'…':'');
+      return `<div class="subject-bar-row">
+        <div class="subject-name" style="width:170px">${esc(lbl)}</div>
+        <div class="subject-track"><div class="subject-fill" style="width:${w}%"></div></div>
+        <div class="subject-pct">${s.reply_rate||0}%</div>
+        <div class="subject-cnt">${s.total}</div>
+      </div>`;
+    }).join('');
+  } else {
+    subEl.innerHTML='<div class="empty-state"><p>Not enough data yet.</p></div>';
+  }
+
+  // Phrases
+  const phEl = document.getElementById('phrasePanel');
+  phEl.innerHTML = `
+    ${data.positive_phrases.length?`
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--positive);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">😊 Positive Phrases</div>
+      <div class="phrase-tags">${data.positive_phrases.map(p=>`<span class="phrase-tag">${esc(p.phrase)} <span class="cnt">×${p.count}</span></span>`).join('')}</div>
+    </div>`:''}
+    ${data.negative_phrases.length?`
+    <div>
+      <div style="font-size:11px;font-weight:600;color:var(--negative);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">😤 Negative Phrases</div>
+      <div class="phrase-tags">${data.negative_phrases.map(p=>`<span class="phrase-tag neg">${esc(p.phrase)} <span class="cnt">×${p.count}</span></span>`).join('')}</div>
+    </div>`:''}
+    ${!data.positive_phrases.length&&!data.negative_phrases.length?'<div class="empty-state"><p>Sync more emails to see phrase patterns.</p></div>':''}`;
+
+  // All suggestions
+  const sgEl = document.getElementById('allSuggestions');
+  sgEl.innerHTML = data.suggestions.length
+    ? data.suggestions.map(s=>`<div class="suggestion-item"><div class="suggestion-dot">💡</div><div>${esc(s)}</div></div>`).join('')
+    : '<div class="empty-state"><p>Sync more emails to generate suggestions.</p></div>';
+}
+
+function renderHourChart(dist) {
+  const ctx = document.getElementById('hourChart');
+  if (S.charts.hour) S.charts.hour.destroy();
+  const labels = Array.from({length:24},(_,i)=>`${String(i).padStart(2,'0')}:00`);
+  const cntMap = {}; const posMap = {};
+  dist.forEach(d=>{ cntMap[d.hour]=d.cnt; posMap[d.hour]=d.pos; });
+  S.charts.hour = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Total',data:labels.map((_,i)=>cntMap[i]||0),backgroundColor:'rgba(59,130,246,.3)',borderColor:'#3b82f6',borderWidth:1,borderRadius:3},
+        {label:'Positive',data:labels.map((_,i)=>posMap[i]||0),backgroundColor:'rgba(5,150,105,.6)',borderColor:'#059669',borderWidth:1,borderRadius:3},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',boxWidth:10,font:{size:10}}}},
+      scales:{x:{ticks:{color:'#9ca3af',font:{size:9},maxTicksLimit:12},grid:{display:false}},
+              y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'},beginAtZero:true}}}
+  });
+}
+
+function renderDayChart(dist) {
+  const ctx = document.getElementById('dayChart');
+  if (S.charts.day) S.charts.day.destroy();
+  const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const cntMap = {}; const posMap = {};
+  dist.forEach(d=>{ cntMap[d.dow]=d.cnt; posMap[d.dow]=d.pos; });
+  S.charts.day = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Total',data:labels.map((_,i)=>cntMap[i]||0),backgroundColor:'rgba(59,130,246,.3)',borderColor:'#3b82f6',borderWidth:1,borderRadius:4},
+        {label:'Positive',data:labels.map((_,i)=>posMap[i]||0),backgroundColor:'rgba(5,150,105,.6)',borderColor:'#059669',borderWidth:1,borderRadius:4},
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#6b7280',boxWidth:10,font:{size:10}}}},
+      scales:{x:{ticks:{color:'#9ca3af',font:{size:11}},grid:{display:false}},
+              y:{ticks:{color:'#9ca3af',font:{size:10}},grid:{color:'#f3f4f6'},beginAtZero:true}}}
+  });
+}
+
+// ── Emails ────────────────────────────────────────────────────────────
+async function loadEmails() {
+  if (!S.accounts.length) {
+    document.getElementById('emailListWrap').innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><h3>No accounts</h3><p>Add an email account to get started.</p></div>`;
+    return;
+  }
+  document.getElementById('emailListWrap').innerHTML=`<div class="loading-wrap"><div class="spinner"></div> Loading…</div>`;
+  const p = new URLSearchParams();
+  S.selected.forEach(id=>p.append('accounts[]',id));
+  if (S.dateFrom) p.append('date_from',S.dateFrom);
+  if (S.dateTo)   p.append('date_to',S.dateTo);
+  if (S.filter)   p.append('sentiment',S.filter);
+  if (S.search)   p.append('search',S.search);
+  p.append('page',S.page); p.append('per_page',30); p.append('folder','INBOX');
+  const res  = await fetch('/api/emails?'+p);
+  const data = await res.json();
+  renderEmails(data);
+}
+
+function renderEmails({emails,total,page,pages}) {
+  const el = document.getElementById('emailListWrap');
+  if (!emails||!emails.length) {
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><h3>No emails found</h3><p>${S.filter||S.search?'Try changing filters.':'Sync your accounts to load emails.'}</p></div>`;
+    document.getElementById('paginationWrap').innerHTML='';
+    return;
+  }
+  el.innerHTML = `<div style="font-size:12px;color:var(--text-4);margin-bottom:8px">${total.toLocaleString()} emails</div>
+  <div class="email-list">
+    ${emails.map(e=>{
+      const col  = avatarColor(e.sender_email||e.sender);
+      const from = (e.sender||'').replace(/<[^>]+>/,'').trim()||e.sender_email||'?';
+      return `<div class="email-row" onclick="openEmail(${e.id})">
+        <div class="email-avatar" style="background:${col}">${initials(from)}</div>
+        <div class="email-body">
+          <div class="email-from">${esc(from.substring(0,30))}</div>
+          <div class="email-subj"><strong>${esc(e.subject||'(No Subject)')}</strong></div>
+          <div class="email-snippet">${esc(e.snippet||'')}</div>
+        </div>
+        <div class="email-side">
+          <div class="email-date">${fmtDate(e.date)}</div>
+          <div class="sent-badge ${e.sentiment}">${sentEmoji(e.sentiment)} ${e.sentiment}</div>
+          <div class="acc-tag">${esc((e.account_name||e.account_email||'').split('@')[0])}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+  renderPagination(pages, page, total);
+}
+
+function renderPagination(pages, cur, total) {
+  const el = document.getElementById('paginationWrap');
+  if (pages<=1) { el.innerHTML=''; return; }
+  let btns=`<button class="page-btn" onclick="goPage(${cur-1})" ${cur<=1?'disabled':''}>‹</button>`;
+  const range=[];
+  for(let i=Math.max(1,cur-2);i<=Math.min(pages,cur+2);i++) range.push(i);
+  if(range[0]>1){btns+=`<button class="page-btn" onclick="goPage(1)">1</button>`;if(range[0]>2)btns+=`<span style="color:var(--text-4);font-size:12px">…</span>`;}
+  range.forEach(p=>{btns+=`<button class="page-btn ${p===cur?'active':''}" onclick="goPage(${p})">${p}</button>`;});
+  if(range[range.length-1]<pages){if(range[range.length-1]<pages-1)btns+=`<span style="color:var(--text-4);font-size:12px">…</span>`;btns+=`<button class="page-btn" onclick="goPage(${pages})">${pages}</button>`;}
+  btns+=`<button class="page-btn" onclick="goPage(${cur+1})" ${cur>=pages?'disabled':''}>›</button>`;
+  el.innerHTML=`<div class="pagination">${btns}<span style="font-size:12px;color:var(--text-4)">${total.toLocaleString()} total</span></div>`;
+}
+function goPage(p) { S.page=p; loadEmails(); document.querySelector('.content').scrollTop=0; }
+
+function setFilter(f,btn) {
+  S.filter=f; S.page=1;
+  document.querySelectorAll('.filter-pill').forEach(el=>el.classList.remove('active'));
+  btn.classList.add('active');
+  loadEmails();
+}
+function debounceSearch() {
+  clearTimeout(S.searchTimer);
+  S.searchTimer=setTimeout(()=>{ S.search=document.getElementById('searchInput').value; S.page=1; loadEmails(); },400);
+}
+
+// ── Email detail ──────────────────────────────────────────────────────
+async function openEmail(id) {
+  const res = await fetch(`/api/emails/${id}`);
+  const e   = await res.json();
+  document.getElementById('detailSubj').textContent = e.subject||'(No Subject)';
+  document.getElementById('detailMeta').innerHTML = `
+    <div class="dmeta-row"><div class="dmeta-label">From</div><div class="dmeta-val">${esc(e.sender||'—')}</div></div>
+    <div class="dmeta-row"><div class="dmeta-label">To</div><div class="dmeta-val">${esc(e.recipient||'—')}</div></div>
+    <div class="dmeta-row"><div class="dmeta-label">Date</div><div class="dmeta-val">${fmtDate(e.date)}</div></div>
+    <div class="dmeta-row"><div class="dmeta-label">Account</div><div class="dmeta-val">${esc(e.account_email||'—')}</div></div>
+    <div class="dmeta-row"><div class="dmeta-label">Domain</div><div class="dmeta-val">${esc(e.sender_domain||'—')}</div></div>
+    <div class="dmeta-row"><div class="dmeta-label">Words</div><div class="dmeta-val">${e.word_count||0}</div></div>`;
+  const badge = document.getElementById('detailSentBadge');
+  badge.textContent = sentEmoji(e.sentiment)+' '+(e.sentiment||'neutral');
+  badge.className   = 'sent-badge '+(e.sentiment||'neutral');
+  const pos = Math.round((e.sentiment_positive||0)*100);
+  const neg = Math.round((e.sentiment_negative||0)*100);
+  const neu = Math.max(0,100-pos-neg);
+  setTimeout(()=>{
+    document.getElementById('sbarPos').style.width=pos+'%'; document.getElementById('sbarPosV').textContent=pos+'%';
+    document.getElementById('sbarNeg').style.width=neg+'%'; document.getElementById('sbarNegV').textContent=neg+'%';
+    document.getElementById('sbarNeu').style.width=neu+'%'; document.getElementById('sbarNeuV').textContent=neu+'%';
+  },50);
+  document.getElementById('detailBody').textContent = e.body||e.snippet||'(Empty)';
+  document.getElementById('detailPanel').classList.add('open');
+}
+function closeDetail() { document.getElementById('detailPanel').classList.remove('open'); }
+
+// ── Toast ──────────────────────────────────────────────────────────────
+function toast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = `toast ${type} show`;
+  setTimeout(()=>el.classList.remove('show'), 4000);
+}
+
+// ── Event bindings ─────────────────────────────────────────────────────
+document.getElementById('addModal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeAddModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDetail(); closeAddModal(); } });
+</script>
+</body>
+</html>

@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Analytics Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #12151c;
+  --surface2: #1a1e28;
+  --surface3: #222736;
+  --border: #2a3048;
+  --border2: #343d5c;
+  --text: #e8eaf0;
+  --text-muted: #8892a4;
+  --text-dim: #545f78;
+  --accent: #4f8ef7;
+  --accent2: #6c7fdb;
+  --positive: #22c97a;
+  --positive-bg: rgba(34,201,122,0.12);
+  --negative: #f04f5e;
+  --negative-bg: rgba(240,79,94,0.12);
+  --neutral: #f5a623;
+  --neutral-bg: rgba(245,166,35,0.12);
+  --purple: #a855f7;
+  --cyan: #06b6d4;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+}
+
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text);
+}
+.sidebar-logo span { color: var(--accent); }
+.logo-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-top: 4px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  padding: 12px 0;
+}
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 20px 4px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 400;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+}
+.nav-item:hover { color: var(--text); background: var(--surface2); }
+.nav-item.active {
+  color: var(--accent);
+  background: rgba(79,142,247,0.08);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+/* ── ACCOUNTS SECTION ── */
+.accounts-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--border);
+}
+.accounts-section::-webkit-scrollbar { width: 4px; }
+.accounts-section::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.account-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+}
+.account-item:hover { background: var(--surface2); }
+.account-item.selected { 
+  border-left-color: var(--accent);
+  background: rgba(79,142,247,0.06);
+}
+.account-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.account-info { flex: 1; min-width: 0; }
+.account-email-text {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.account-meta { font-size: 11px; color: var(--text-dim); }
+.account-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.account-item.selected .account-check {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+.btn-add-account {
+  width: 100%;
+  padding: 9px;
+  background: rgba(79,142,247,0.12);
+  border: 1px dashed rgba(79,142,247,0.4);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.btn-add-account:hover {
+  background: rgba(79,142,247,0.2);
+  border-color: var(--accent);
+}
+
+/* ── MAIN CONTENT ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-wrap: wrap;
+}
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+.topbar-subtitle { font-size: 12px; color: var(--text-dim); font-weight: 400; }
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.date-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 7px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.date-input:focus { outline: none; border-color: var(--accent); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: #3a7df0; }
+.btn-ghost {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+.btn-sync {
+  background: linear-gradient(135deg, #22c97a, #16a86a);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(34,201,122,0.25);
+}
+.btn-sync:hover { transform: translateY(-1px); box-shadow: 0 4px 24px rgba(34,201,122,0.35); }
+.btn-sync.syncing { opacity: 0.75; pointer-events: none; }
+.btn-sync.syncing .sync-icon { animation: spin 1s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── STATS CARDS ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.total::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.stat-card.positive::before { background: linear-gradient(90deg, var(--positive), #16a86a); }
+.stat-card.negative::before { background: linear-gradient(90deg, var(--negative), #c0392b); }
+.stat-card.neutral::before { background: linear-gradient(90deg, var(--neutral), #e67e22); }
+
+.stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+.stat-card.total .stat-icon { background: rgba(79,142,247,0.15); }
+.stat-card.positive .stat-icon { background: var(--positive-bg); }
+.stat-card.negative .stat-icon { background: var(--negative-bg); }
+.stat-card.neutral .stat-icon { background: var(--neutral-bg); }
+
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-card.total .stat-value { color: var(--accent); }
+.stat-card.positive .stat-value { color: var(--positive); }
+.stat-card.negative .stat-value { color: var(--negative); }
+.stat-card.neutral .stat-value { color: var(--neutral); }
+
+.stat-label { font-size: 13px; color: var(--text-muted); }
+.stat-change {
+  position: absolute;
+  top: 20px; right: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+/* ── CHARTS ── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.chart-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.chart-canvas { position: relative; }
+
+/* ── ACCOUNT BREAKDOWN ── */
+.account-breakdown {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.breakdown-info { flex: 1; min-width: 0; }
+.breakdown-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.breakdown-email { font-size: 11px; color: var(--text-dim); }
+.breakdown-bars {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex: 2;
+}
+.sentiment-bar-wrap {
+  flex: 1;
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.sentiment-bar { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.sentiment-bar.pos { background: var(--positive); }
+.sentiment-bar.neg { background: var(--negative); }
+.sentiment-bar.neu { background: var(--neutral); }
+.breakdown-stats {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+.bstat { display: flex; align-items: center; gap: 3px; }
+.bstat .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+/* ── TOP SENDERS ── */
+.senders-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* ── INBOX VIEW ── */
+.inbox-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+}
+.search-box input {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  flex: 1;
+  outline: none;
+}
+.search-box input::placeholder { color: var(--text-dim); }
+
+.filter-pill {
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.filter-pill.active { border-color: currentColor; }
+.filter-pill.all.active { color: var(--accent); background: rgba(79,142,247,0.1); border-color: var(--accent); }
+.filter-pill.positive.active { color: var(--positive); background: var(--positive-bg); border-color: var(--positive); }
+.filter-pill.negative.active { color: var(--negative); background: var(--negative-bg); border-color: var(--negative); }
+.filter-pill.neutral.active { color: var(--neutral); background: var(--neutral-bg); border-color: var(--neutral); }
+
+.email-list { display: flex; flex-direction: column; gap: 6px; }
+.email-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  align-items: flex-start;
+}
+.email-row:hover { border-color: var(--border2); background: var(--surface2); }
+.email-row.selected { border-color: var(--accent); background: rgba(79,142,247,0.05); }
+
+.email-sender-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.email-main { flex: 1; min-width: 0; }
+.email-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.email-from { font-size: 13px; font-weight: 500; color: var(--text); }
+.email-subject-row {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.email-subject-row strong { color: var(--text); }
+.email-snippet { font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.email-date { font-size: 11px; color: var(--text-dim); }
+.sentiment-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.sentiment-badge.positive { color: var(--positive); background: var(--positive-bg); }
+.sentiment-badge.negative { color: var(--negative); background: var(--negative-bg); }
+.sentiment-badge.neutral { color: var(--neutral); background: var(--neutral-bg); }
+.account-tag {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(79,142,247,0.12);
+  color: var(--accent);
+  white-space: nowrap;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.page-btn:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ── EMAIL DETAIL PANEL ── */
+.detail-panel {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: 500px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.4);
+}
+.detail-panel.open { transform: translateX(0); }
+.detail-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.detail-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.detail-close:hover { color: var(--text); }
+.detail-subject {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.3;
+}
+.detail-meta { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.meta-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+.meta-label { color: var(--text-dim); min-width: 60px; }
+.meta-value { color: var(--text-muted); flex: 1; }
+
+.sentiment-detail {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sentiment-bars-detail { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.sbar-row { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.sbar-label { width: 60px; color: var(--text-muted); }
+.sbar-track {
+  flex: 1;
+  height: 8px;
+  background: var(--surface2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.sbar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.sbar-fill.pos { background: linear-gradient(90deg, var(--positive), #16a86a); }
+.sbar-fill.neg { background: linear-gradient(90deg, var(--negative), #c0392b); }
+.sbar-fill.neu { background: linear-gradient(90deg, var(--neutral), #e67e22); }
+.sbar-val { width: 36px; text-align: right; color: var(--text-dim); }
+
+.detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.detail-body::-webkit-scrollbar { width: 4px; }
+.detail-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  width: 460px;
+  max-width: 95vw;
+  box-shadow: var(--shadow);
+}
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.modal-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.form-hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; line-height: 1.4; }
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--text);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 360px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: var(--positive); }
+.toast.error { border-color: var(--negative); }
+.toast.info { border-color: var(--accent); }
+
+/* Loading */
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: var(--text-muted);
+  font-size: 14px;
+  gap: 10px;
+}
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-state h3 { font-family: 'Syne', sans-serif; font-size: 18px; margin-bottom: 8px; color: var(--text); }
+.empty-state p { font-size: 14px; color: var(--text-muted); max-width: 300px; margin: 0 auto; line-height: 1.6; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Tag list */
+.selected-accounts-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.sel-tag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* Responsive helpers */
+@media (max-width: 1100px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-grid { grid-template-columns: 1fr; }
+  .senders-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 750px) {
+  .sidebar { width: 200px; min-width: 200px; }
+  .detail-panel { width: 100%; }
+}
+
+.sync-progress {
+  font-size: 11px;
+  color: var(--positive);
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+.sync-progress.visible { display: flex; }
+
+.account-delete-btn {
+  opacity: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--negative-bg);
+  border: none;
+  color: var(--negative);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.account-item:hover .account-delete-btn { opacity: 1; }
+
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: var(--surface2);
+  color: var(--text-muted);
+}
+.score-badge.pos { color: var(--positive); background: var(--positive-bg); }
+.score-badge.neg { color: var(--negative); background: var(--negative-bg); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1>📧 <span>Email</span> Analytics</h1>
+    <div class="logo-badge">Multi-Account Hub</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Views</div>
+    <div class="nav-item active" onclick="switchView('dashboard', this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchView('inbox', this)">
+      <span class="nav-icon">📥</span> Inbox
+    </div>
+    <div class="nav-section-label" style="margin-top:8px">Accounts</div>
+  </nav>
+
+  <div class="accounts-section" id="accountsList">
+    <div class="loading-overlay" style="padding:20px">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="btn-add-account" onclick="openAddModal()">
+      ➕ Add Email Account
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-subtitle" id="topbarSubtitle">Email analytics overview</div>
+    </div>
+
+    <div class="date-range">
+      <span style="font-size:12px;color:var(--text-dim)">📅</span>
+      <input type="date" class="date-input" id="dateFrom" placeholder="From">
+      <span style="color:var(--text-dim);font-size:12px">→</span>
+      <input type="date" class="date-input" id="dateTo" placeholder="To">
+      <button class="btn btn-ghost" onclick="clearDates()">Clear</button>
+      <button class="btn btn-ghost" onclick="applyFilters()">Apply</button>
+    </div>
+
+    <div class="sync-progress" id="syncProgress">
+      <div class="spinner"></div> Syncing...
+    </div>
+
+    <button class="btn btn-sync" id="syncAllBtn" onclick="syncAll()">
+      <span class="sync-icon">🔄</span> Sync All
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- DASHBOARD VIEW -->
+    <div class="view active" id="view-dashboard">
+      <div id="selectedAccountTags" class="selected-accounts-tags"></div>
+
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="stat-icon">📬</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-label">Total Emails</div>
+        </div>
+        <div class="stat-card positive">
+          <div class="stat-icon">😊</div>
+          <div class="stat-value" id="statPositive">—</div>
+          <div class="stat-label">Positive Replies</div>
+          <div class="stat-change" id="statPosPct" style="color:var(--positive);background:var(--positive-bg)">—</div>
+        </div>
+        <div class="stat-card negative">
+          <div class="stat-icon">😤</div>
+          <div class="stat-value" id="statNegative">—</div>
+          <div class="stat-label">Negative Replies</div>
+          <div class="stat-change" id="statNegPct" style="color:var(--negative);background:var(--negative-bg)">—</div>
+        </div>
+        <div class="stat-card neutral">
+          <div class="stat-icon">😐</div>
+          <div class="stat-value" id="statNeutral">—</div>
+          <div class="stat-label">Neutral Replies</div>
+          <div class="stat-change" id="statNeuPct" style="color:var(--neutral);background:var(--neutral-bg)">—</div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">📈 Email Trend (Last 30 Days)</div>
+          </div>
+          <div class="chart-canvas" style="height:220px">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">🥧 Sentiment Split</div>
+          </div>
+          <div class="chart-canvas" style="height:220px;display:flex;align-items:center;justify-content:center">
+            <canvas id="donutChart" style="max-height:220px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="account-breakdown" id="accountBreakdown">
+        <div class="section-header">
+          <div class="section-title">📊 Per-Account Sentiment Breakdown</div>
+        </div>
+        <div id="breakdownRows">
+          <div class="loading-overlay"><div class="spinner"></div> Loading...</div>
+        </div>
+      </div>
+
+      <div class="senders-grid">
+        <div class="chart-card">
+          <div class="section-header">
+            <div class="chart-title">👤 Top Senders</div>
+          </div>
+          <div id="topSendersList"></div>
+        </div>
+        <div class="chart-card">
+          <div class="section-header">
+            <div class="chart-title">📮 Accounts Overview</div>
+          </div>
+          <div id="accountsOverview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INBOX VIEW -->
+    <div class="view" id="view-inbox">
+      <div class="inbox-controls">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="searchInput" placeholder="Search emails..." oninput="debounceSearch()">
+        </div>
+        <button class="filter-pill all active" onclick="setFilter('', this)">All</button>
+        <button class="filter-pill positive" onclick="setFilter('positive', this)">😊 Positive</button>
+        <button class="filter-pill negative" onclick="setFilter('negative', this)">😤 Negative</button>
+        <button class="filter-pill neutral" onclick="setFilter('neutral', this)">😐 Neutral</button>
+      </div>
+
+      <div id="emailListContainer">
+        <div class="loading-overlay"><div class="spinner"></div> Loading emails...</div>
+      </div>
+
+      <div id="paginationContainer"></div>
+    </div>
+  </div>
+</main>
+
+<!-- EMAIL DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-subject" id="detailSubject">—</div>
+  </div>
+  <div class="detail-meta" id="detailMeta"></div>
+  <div class="sentiment-detail">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:12px;font-weight:600;color:var(--text-muted)">SENTIMENT ANALYSIS</span>
+      <span class="sentiment-badge" id="detailSentBadge">neutral</span>
+    </div>
+    <div class="sentiment-bars-detail">
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--positive)">😊 Pos</div>
+        <div class="sbar-track"><div class="sbar-fill pos" id="sbarPos" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarPosVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--negative)">😤 Neg</div>
+        <div class="sbar-track"><div class="sbar-fill neg" id="sbarNeg" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNegVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--neutral)">😐 Neu</div>
+        <div class="sbar-track"><div class="sbar-fill neu" id="sbarNeu" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNeuVal">0%</div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-body" id="detailBody">—</div>
+</div>
+
+<!-- ADD ACCOUNT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>➕ Add Email Account</h2>
+    <div class="modal-subtitle">
+      Connect your email via IMAP using an <strong style="color:var(--accent)">App Password</strong> (not your regular password).
+      For Gmail: Settings → Security → 2-Step Verification → App Passwords.
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Display Name (optional)</label>
+      <input type="text" class="form-input" id="inputName" placeholder="e.g. Work Gmail">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address *</label>
+      <input type="email" class="form-input" id="inputEmail" placeholder="you@gmail.com" oninput="autoDetectServer()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">App Password *</label>
+      <input type="password" class="form-input" id="inputPassword" placeholder="xxxx xxxx xxxx xxxx">
+      <div class="form-hint">Use an App Password, not your regular password. Never share your credentials.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">IMAP Server</label>
+      <input type="text" class="form-input" id="inputServer" placeholder="Auto-detected">
+      <div class="form-hint" id="serverHint">Will auto-detect based on email domain.</div>
+    </div>
+
+    <div id="addError" style="display:none;color:var(--negative);font-size:13px;padding:8px 12px;background:var(--negative-bg);border-radius:8px;margin-top:8px;"></div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" id="addBtn" onclick="submitAddAccount()" style="flex:1">
+        🔌 Connect Account
+      </button>
+      <button class="btn btn-ghost" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const AVATAR_COLORS = ['#4f8ef7','#a855f7','#22c97a','#f04f5e','#f5a623','#06b6d4','#ec4899','#10b981'];
+const colorCache = {};
+
+function avatarColor(key) {
+  if (!colorCache[key]) {
+    colorCache[key] = AVATAR_COLORS[Object.keys(colorCache).length % AVATAR_COLORS.length];
+  }
+  return colorCache[key];
+}
+
+function initials(name) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  return (parts[0][0] + (parts[1]?.[0] || '')).toUpperCase();
+}
+
+// ── STATE ──
+let state = {
+  accounts: [],
+  selectedAccounts: [],
+  currentView: 'dashboard',
+  sentimentFilter: '',
+  searchQuery: '',
+  currentPage: 1,
+  dateFrom: '',
+  dateTo: '',
+  trendChart: null,
+  donutChart: null,
+  searchTimer: null,
+};
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date();
+  const d30 = new Date(); d30.setDate(d30.getDate() - 30);
+  // Default to last 30 days
+  // document.getElementById('dateFrom').value = d30.toISOString().split('T')[0];
+  // document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+  loadAccounts();
+});
+
+// ── ACCOUNTS ──
+async function loadAccounts() {
+  const res = await fetch('/api/accounts');
+  state.accounts = await res.json();
+  renderAccounts();
+  
+  if (state.accounts.length > 0) {
+    state.selectedAccounts = state.accounts.map(a => a.id);
+    renderAccountSelections();
+    loadStats();
+    if (state.currentView === 'inbox') loadEmails();
+  }
+}
+
+function renderAccounts() {
+  const el = document.getElementById('accountsList');
+  if (state.accounts.length === 0) {
+    el.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:12px;line-height:1.6">
+      No accounts yet.<br>Add your first email account below.
+    </div>`;
+    return;
+  }
+  el.innerHTML = state.accounts.map(a => {
+    const color = avatarColor(a.email);
+    const isSelected = state.selectedAccounts.includes(a.id);
+    const lastSync = a.last_synced ? new Date(a.last_synced).toLocaleDateString() : 'Never';
+    return `
+    <div class="account-item ${isSelected ? 'selected' : ''}" onclick="toggleAccount(${a.id})" id="acc-${a.id}">
+      <div class="account-avatar" style="background:${color};font-size:11px">${initials(a.display_name || a.email)}</div>
+      <div class="account-info">
+        <div class="account-email-text">${a.display_name || a.email.split('@')[0]}</div>
+        <div class="account-meta">${a.total_emails || 0} emails · ${lastSync}</div>
+      </div>
+      <div class="account-check">${isSelected ? '✓' : ''}</div>
+      <button class="account-delete-btn" onclick="event.stopPropagation();deleteAccount(${a.id})" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderAccountSelections() {
+  const el = document.getElementById('selectedAccountTags');
+  if (!el) return;
+  el.innerHTML = state.selectedAccounts.map(id => {
+    const a = state.accounts.find(x => x.id === id);
+    if (!a) return '';
+    const color = avatarColor(a.email);
+    return `<div class="sel-tag" style="background:${color}22;color:${color};border:1px solid ${color}44">
+      <span>${initials(a.display_name || a.email)}</span>
+      ${a.display_name || a.email.split('@')[0]}
+    </div>`;
+  }).join('');
+}
+
+function toggleAccount(id) {
+  if (state.selectedAccounts.includes(id)) {
+    if (state.selectedAccounts.length === 1) return;
+    state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  } else {
+    state.selectedAccounts.push(id);
+  }
+  renderAccounts();
+  renderAccountSelections();
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+}
+
+async function deleteAccount(id) {
+  if (!confirm('Remove this account? All synced emails will be deleted.')) return;
+  await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+  state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  showToast('Account removed', 'info');
+  loadAccounts();
+}
+
+// ── MODAL ──
+function openAddModal() {
+  document.getElementById('addModal').classList.add('open');
+  document.getElementById('addError').style.display = 'none';
+  document.getElementById('inputEmail').value = '';
+  document.getElementById('inputPassword').value = '';
+  document.getElementById('inputName').value = '';
+  document.getElementById('inputServer').value = '';
+  document.getElementById('serverHint').textContent = 'Will auto-detect based on email domain.';
+}
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+}
+
+const IMAP_MAP = {
+  'gmail.com': 'imap.gmail.com', 'yahoo.com': 'imap.mail.yahoo.com',
+  'outlook.com': 'imap-mail.outlook.com', 'hotmail.com': 'imap-mail.outlook.com',
+  'live.com': 'imap-mail.outlook.com', 'icloud.com': 'imap.mail.me.com',
+  'zoho.com': 'imap.zoho.com', 'aol.com': 'imap.aol.com',
+};
+
+function autoDetectServer() {
+  const email = document.getElementById('inputEmail').value;
+  const domain = email.split('@')[1]?.toLowerCase();
+  const server = IMAP_MAP[domain] || (domain ? `imap.${domain}` : '');
+  document.getElementById('inputServer').value = server;
+  document.getElementById('serverHint').textContent = server ? `Detected: ${server}` : 'Will auto-detect based on email domain.';
+}
+
+async function submitAddAccount() {
+  const btn = document.getElementById('addBtn');
+  const errEl = document.getElementById('addError');
+  const email = document.getElementById('inputEmail').value.trim();
+  const pass = document.getElementById('inputPassword').value.trim();
+  const name = document.getElementById('inputName').value.trim();
+  const server = document.getElementById('inputServer').value.trim();
+
+  if (!email || !pass) { errEl.style.display='block'; errEl.textContent='Email and app password are required.'; return; }
+
+  btn.textContent = '🔌 Connecting...';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, app_password: pass, display_name: name, imap_server: server })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      errEl.style.display = 'block';
+      errEl.textContent = data.error || 'Failed to connect.';
+    } else {
+      closeAddModal();
+      showToast('✅ Account connected! Starting sync...', 'success');
+      await loadAccounts();
+      syncAccount(data.account.id);
+    }
+  } catch (e) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Connection failed. Check server address.';
+  }
+
+  btn.textContent = '🔌 Connect Account';
+  btn.disabled = false;
+}
+
+// ── SYNC ──
+async function syncAccount(id) {
+  const res = await fetch(`/api/sync/${id}`, { method: 'POST' });
+  const data = await res.json();
+  if (data.success) {
+    showToast('🔄 ' + data.message, 'info');
+    pollSyncStatus(id);
+  }
+}
+
+async function syncAll() {
+  const btn = document.getElementById('syncAllBtn');
+  const progress = document.getElementById('syncProgress');
+  btn.classList.add('syncing');
+  progress.classList.add('visible');
+  
+  await fetch('/api/sync/all', { method: 'POST' });
+  showToast('🔄 Syncing all accounts in background...', 'info');
+  
+  setTimeout(() => {
+    btn.classList.remove('syncing');
+    progress.classList.remove('visible');
+    loadAccounts();
+    loadStats();
+    if (state.currentView === 'inbox') loadEmails();
+  }, 8000);
+}
+
+function pollSyncStatus(id) {
+  let polls = 0;
+  const interval = setInterval(async () => {
+    polls++;
+    if (polls > 20) { clearInterval(interval); return; }
+    const res = await fetch(`/api/sync/status/${id}`);
+    const data = await res.json();
+    // Update account in sidebar
+    const a = state.accounts.find(x => x.id === id);
+    if (a) { a.total_emails = data.total_emails; a.last_synced = data.last_synced; }
+    renderAccounts();
+    if (polls > 5) {
+      clearInterval(interval);
+      loadStats();
+      if (state.currentView === 'inbox') loadEmails();
+      showToast(`✅ Sync complete! ${data.total_emails} emails loaded.`, 'success');
+    }
+  }, 3000);
+}
+
+// ── VIEWS ──
+function switchView(view, navEl) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  navEl.classList.add('active');
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  state.currentView = view;
+  
+  const titles = { dashboard: ['Dashboard', 'Email analytics overview'], inbox: ['Inbox', 'Browse and filter emails'] };
+  document.getElementById('topbarTitle').textContent = titles[view][0];
+  document.getElementById('topbarSubtitle').textContent = titles[view][1];
+
+  if (view === 'inbox') loadEmails();
+  closeDetail();
+}
+
+// ── FILTERS ──
+function applyFilters() {
+  state.dateFrom = document.getElementById('dateFrom').value;
+  state.dateTo = document.getElementById('dateTo').value;
+  state.currentPage = 1;
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+}
+function clearDates() {
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  state.dateFrom = ''; state.dateTo = '';
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+}
+function setFilter(sentiment, btn) {
+  state.sentimentFilter = sentiment;
+  state.currentPage = 1;
+  document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+  loadEmails();
+}
+function debounceSearch() {
+  clearTimeout(state.searchTimer);
+  state.searchTimer = setTimeout(() => {
+    state.searchQuery = document.getElementById('searchInput').value;
+    state.currentPage = 1;
+    loadEmails();
+  }, 400);
+}
+
+// ── STATS ──
+async function loadStats() {
+  if (state.accounts.length === 0) { renderEmptyDashboard(); return; }
+
+  const params = buildParams();
+  const res = await fetch('/api/stats?' + params);
+  const data = await res.json();
+  renderStats(data);
+}
+
+function buildParams() {
+  const p = new URLSearchParams();
+  state.selectedAccounts.forEach(id => p.append('accounts[]', id));
+  if (state.dateFrom) p.append('date_from', state.dateFrom);
+  if (state.dateTo) p.append('date_to', state.dateTo);
+  return p.toString();
+}
+
+function renderStats(data) {
+  const total = data.total || 0;
+  document.getElementById('statTotal').textContent = total.toLocaleString();
+  document.getElementById('statPositive').textContent = data.positive.toLocaleString();
+  document.getElementById('statNegative').textContent = data.negative.toLocaleString();
+  document.getElementById('statNeutral').textContent = data.neutral.toLocaleString();
+  
+  if (total > 0) {
+    document.getElementById('statPosPct').textContent = Math.round(data.positive/total*100) + '%';
+    document.getElementById('statNegPct').textContent = Math.round(data.negative/total*100) + '%';
+    document.getElementById('statNeuPct').textContent = Math.round(data.neutral/total*100) + '%';
+  }
+  
+  renderTrendChart(data.trend);
+  renderDonutChart(data.positive, data.negative, data.neutral);
+  renderBreakdown(data.by_account);
+  renderTopSenders(data.top_senders);
+  renderAccountsOverview();
+}
+
+function renderEmptyDashboard() {
+  document.getElementById('statTotal').textContent = '0';
+  document.getElementById('statPositive').textContent = '0';
+  document.getElementById('statNegative').textContent = '0';
+  document.getElementById('statNeutral').textContent = '0';
+}
+
+function renderTrendChart(trend) {
+  const ctx = document.getElementById('trendChart');
+  if (state.trendChart) state.trendChart.destroy();
+  
+  const labels = trend.map(t => {
+    const d = new Date(t.day);
+    return d.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+  });
+
+  state.trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Positive',
+          data: trend.map(t => t.positive),
+          borderColor: '#22c97a',
+          backgroundColor: 'rgba(34,201,122,0.08)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#22c97a',
+        },
+        {
+          label: 'Negative',
+          data: trend.map(t => t.negative),
+          borderColor: '#f04f5e',
+          backgroundColor: 'rgba(240,79,94,0.08)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#f04f5e',
+        },
+        {
+          label: 'Neutral',
+          data: trend.map(t => t.neutral),
+          borderColor: '#f5a623',
+          backgroundColor: 'rgba(245,166,35,0.05)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#f5a623',
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#8892a4', boxWidth: 12, font: { size: 11 } } } },
+      scales: {
+        x: { ticks: { color: '#545f78', font: { size: 10 } }, grid: { color: '#1a1e28' } },
+        y: { ticks: { color: '#545f78', font: { size: 10 } }, grid: { color: '#1a1e28' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function renderDonutChart(pos, neg, neu) {
+  const ctx = document.getElementById('donutChart');
+  if (state.donutChart) state.donutChart.destroy();
+  
+  state.donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Positive', 'Negative', 'Neutral'],
+      datasets: [{
+        data: [pos, neg, neu],
+        backgroundColor: ['#22c97a', '#f04f5e', '#f5a623'],
+        borderColor: '#12151c',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#8892a4', boxWidth: 10, font: { size: 11 }, padding: 14 } }
+      }
+    }
+  });
+}
+
+function renderBreakdown(byAccount) {
+  const el = document.getElementById('breakdownRows');
+  if (!byAccount || byAccount.length === 0) {
+    el.innerHTML = `<div class="empty-state" style="padding:30px"><div class="empty-icon">📊</div><p>No data yet. Sync your accounts first.</p></div>`;
+    return;
+  }
+
+  el.innerHTML = byAccount.map(a => {
+    const total = a.total || 1;
+    const pp = Math.round(a.positive / total * 100);
+    const np = Math.round(a.negative / total * 100);
+    const nup = 100 - pp - np;
+    const color = avatarColor(a.email);
+    const scoreNum = a.avg_score || 0;
+    const scoreClass = scoreNum > 0.05 ? 'pos' : scoreNum < -0.05 ? 'neg' : '';
+    return `
+    <div class="breakdown-row">
+      <div class="breakdown-avatar" style="background:${color}">${initials(a.display_name || a.email)}</div>
+      <div class="breakdown-info">
+        <div class="breakdown-name">${a.display_name || a.email.split('@')[0]}</div>
+        <div class="breakdown-email">${a.email} · ${a.total} emails</div>
+      </div>
+      <div class="breakdown-bars">
+        <div style="flex:1">
+          <div style="display:flex;gap:3px;margin-bottom:4px">
+            <div class="sentiment-bar-wrap" style="flex:${pp||1}"><div class="sentiment-bar pos" style="width:100%"></div></div>
+            <div class="sentiment-bar-wrap" style="flex:${np||1}"><div class="sentiment-bar neg" style="width:100%"></div></div>
+            <div class="sentiment-bar-wrap" style="flex:${nup||1}"><div class="sentiment-bar neu" style="width:100%"></div></div>
+          </div>
+          <div style="display:flex;gap:10px;font-size:11px;color:var(--text-dim)">
+            <span style="color:var(--positive)">+${a.positive}</span>
+            <span style="color:var(--negative)">-${a.negative}</span>
+            <span style="color:var(--neutral)">~${a.neutral}</span>
+          </div>
+        </div>
+      </div>
+      <div class="score-badge ${scoreClass}">${scoreNum >= 0 ? '+' : ''}${scoreNum.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTopSenders(senders) {
+  const el = document.getElementById('topSendersList');
+  if (!senders || senders.length === 0) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">No data yet</div>`;
+    return;
+  }
+  const max = senders[0]?.cnt || 1;
+  el.innerHTML = senders.map((s, i) => {
+    const color = avatarColor(s.sender_email || s.sender || i);
+    const pct = Math.round(s.cnt / max * 100);
+    const name = s.sender_email?.split('@')[0] || '?';
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div style="width:24px;height:24px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${initials(name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.sender_email || '(unknown)'}</div>
+        <div style="height:4px;background:var(--surface2);border-radius:2px;margin-top:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:2px"></div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted)">${s.cnt}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAccountsOverview() {
+  const el = document.getElementById('accountsOverview');
+  if (!state.accounts.length) {
+    el.innerHTML = `<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">No accounts added</div>`;
+    return;
+  }
+  el.innerHTML = state.accounts.map(a => {
+    const color = avatarColor(a.email);
+    const lastSync = a.last_synced ? new Date(a.last_synced).toLocaleString() : 'Never';
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div class="breakdown-avatar" style="background:${color};width:30px;height:30px;font-size:11px">${initials(a.display_name || a.email)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.email}</div>
+        <div style="font-size:11px;color:var(--text-dim)">Last sync: ${lastSync}</div>
+      </div>
+      <button class="btn btn-ghost" style="padding:4px 10px;font-size:11px" onclick="syncAccount(${a.id})">🔄</button>
+    </div>`;
+  }).join('');
+}
+
+// ── EMAILS ──
+async function loadEmails() {
+  if (state.accounts.length === 0) {
+    document.getElementById('emailListContainer').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No accounts yet</h3>
+        <p>Add an email account to start viewing your inbox.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('emailListContainer').innerHTML = `<div class="loading-overlay"><div class="spinner"></div> Loading emails...</div>`;
+
+  const params = new URLSearchParams();
+  state.selectedAccounts.forEach(id => params.append('accounts[]', id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+  if (state.sentimentFilter) params.append('sentiment', state.sentimentFilter);
+  if (state.searchQuery) params.append('search', state.searchQuery);
+  params.append('page', state.currentPage);
+  params.append('per_page', 30);
+  params.append('folder', 'INBOX');
+
+  const res = await fetch('/api/emails?' + params);
+  const data = await res.json();
+  
+  renderEmailList(data.emails, data.total);
+  renderPagination(data.pages, data.page, data.total);
+}
+
+function renderEmailList(emails, total) {
+  const el = document.getElementById('emailListContainer');
+  if (!emails || emails.length === 0) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h3>No emails found</h3>
+        <p>${state.sentimentFilter || state.searchQuery ? 'Try adjusting your filters or search.' : 'Sync your accounts to load emails.'}</p>
+      </div>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px">${total.toLocaleString()} emails</div>
+    <div class="email-list">
+      ${emails.map(e => {
+        const color = avatarColor(e.sender_email || e.sender);
+        const date = new Date(e.date).toLocaleDateString('en', { month:'short', day:'numeric', year:'2-digit' });
+        const time = new Date(e.date).toLocaleTimeString('en', { hour:'2-digit', minute:'2-digit' });
+        const fromName = e.sender?.replace(/<[^>]+>/, '').trim() || e.sender_email || '?';
+        return `
+        <div class="email-row" onclick="openEmail(${e.id})">
+          <div class="email-sender-avatar" style="background:${color}">${initials(fromName)}</div>
+          <div class="email-main">
+            <div class="email-row-top">
+              <div class="email-from">${escHtml(fromName.substring(0,30))}</div>
+              <div class="account-tag">${e.account_name || e.account_email?.split('@')[1] || ''}</div>
+            </div>
+            <div class="email-subject-row"><strong>${escHtml(e.subject || '(No Subject)')}</strong></div>
+            <div class="email-snippet">${escHtml(e.snippet || '')}</div>
+          </div>
+          <div class="email-meta">
+            <div class="email-date">${date} ${time}</div>
+            <div class="sentiment-badge ${e.sentiment}">${sentimentEmoji(e.sentiment)} ${e.sentiment}</div>
+            ${e.word_count ? `<div style="font-size:10px;color:var(--text-dim)">${e.word_count}w</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderPagination(pages, current, total) {
+  const el = document.getElementById('paginationContainer');
+  if (pages <= 1) { el.innerHTML = ''; return; }
+
+  let btns = '';
+  btns += `<button class="page-btn" onclick="goPage(${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  
+  const range = [];
+  for (let i = Math.max(1, current-2); i <= Math.min(pages, current+2); i++) range.push(i);
+  if (range[0] > 1) { btns += `<button class="page-btn" onclick="goPage(1)">1</button>`; if (range[0] > 2) btns += `<span style="color:var(--text-dim)">…</span>`; }
+  range.forEach(p => { btns += `<button class="page-btn ${p===current?'active':''}" onclick="goPage(${p})">${p}</button>`; });
+  if (range[range.length-1] < pages) { if (range[range.length-1] < pages-1) btns += `<span style="color:var(--text-dim)">…</span>`; btns += `<button class="page-btn" onclick="goPage(${pages})">${pages}</button>`; }
+  btns += `<button class="page-btn" onclick="goPage(${current+1})" ${current>=pages?'disabled':''}>›</button>`;
+  
+  el.innerHTML = `<div class="pagination">${btns}<span style="font-size:12px;color:var(--text-dim)">${total.toLocaleString()} total</span></div>`;
+}
+
+function goPage(p) {
+  state.currentPage = p;
+  loadEmails();
+  document.querySelector('.content').scrollTop = 0;
+}
+
+// ── EMAIL DETAIL ──
+async function openEmail(id) {
+  const res = await fetch(`/api/emails/${id}`);
+  const e = await res.json();
+  
+  document.getElementById('detailSubject').textContent = e.subject || '(No Subject)';
+  
+  const date = new Date(e.date).toLocaleString();
+  document.getElementById('detailMeta').innerHTML = `
+    <div class="meta-row"><div class="meta-label">From</div><div class="meta-value">${escHtml(e.sender || '—')}</div></div>
+    <div class="meta-row"><div class="meta-label">To</div><div class="meta-value">${escHtml(e.recipient || '—')}</div></div>
+    <div class="meta-row"><div class="meta-label">Date</div><div class="meta-value">${date}</div></div>
+    <div class="meta-row"><div class="meta-label">Account</div><div class="meta-value">${e.account_email || '—'}</div></div>
+    <div class="meta-row"><div class="meta-label">Words</div><div class="meta-value">${e.word_count || 0} words</div></div>`;
+  
+  const badge = document.getElementById('detailSentBadge');
+  badge.textContent = sentimentEmoji(e.sentiment) + ' ' + (e.sentiment || 'neutral');
+  badge.className = 'sentiment-badge ' + (e.sentiment || 'neutral');
+
+  const pos = Math.round((e.sentiment_positive || 0) * 100);
+  const neg = Math.round((e.sentiment_negative || 0) * 100);
+  const neu = Math.max(0, 100 - pos - neg);
+  
+  setTimeout(() => {
+    document.getElementById('sbarPos').style.width = pos + '%';
+    document.getElementById('sbarNeg').style.width = neg + '%';
+    document.getElementById('sbarNeu').style.width = neu + '%';
+    document.getElementById('sbarPosVal').textContent = pos + '%';
+    document.getElementById('sbarNegVal').textContent = neg + '%';
+    document.getElementById('sbarNeuVal').textContent = neu + '%';
+  }, 50);
+
+  document.getElementById('detailBody').textContent = e.body || e.snippet || '(Empty)';
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+// ── HELPERS ──
+function sentimentEmoji(s) { return { positive:'😊', negative:'😤', neutral:'😐' }[s] || '😐'; }
+function escHtml(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// Close modal on overlay click
+document.getElementById('addModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeAddModal();
+});
+
+// Close detail on ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDetail(); closeAddModal(); }
+});
+</script>
+</body>
+</html>

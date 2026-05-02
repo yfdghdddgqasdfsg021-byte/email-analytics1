@@ -1,0 +1,2529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Analytics Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   CAL.COM-INSPIRED CLEAN WHITE DESIGN SYSTEM
+   High resolution · Minimal · Crisp typography
+═══════════════════════════════════════════════════════ */
+:root {
+  /* Core palette — cal.com inspired */
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --surface2: #f3f4f6;
+  --surface3: #e9eaec;
+  --border: #e5e7eb;
+  --border2: #d1d5db;
+  --text: #111827;
+  --text-secondary: #374151;
+  --text-muted: #6b7280;
+  --text-dim: #9ca3af;
+
+  /* Brand — cal.com uses a deep navy/black accent */
+  --accent: #111827;
+  --accent-hover: #1f2937;
+  --accent-light: #f3f4f6;
+  --accent-muted: #374151;
+
+  /* Semantic colors — muted, refined */
+  --positive: #059669;
+  --positive-bg: #f0fdf4;
+  --positive-border: #bbf7d0;
+  --positive-text: #065f46;
+
+  --negative: #dc2626;
+  --negative-bg: #fef2f2;
+  --negative-border: #fecaca;
+  --negative-text: #991b1b;
+
+  --neutral: #d97706;
+  --neutral-bg: #fffbeb;
+  --neutral-border: #fde68a;
+  --neutral-text: #92400e;
+
+  --purple: #7c3aed;
+  --cyan: #0891b2;
+  --blue: #2563eb;
+
+  /* Layout */
+  --radius: 8px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+  --sidebar-width: 232px;
+
+  /* Shadows — very subtle like cal.com */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.04);
+  --shadow-focus: 0 0 0 3px rgba(17,24,39,0.08);
+}
+
+/* ─── RESET ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── SIDEBAR ─────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+}
+
+.sidebar-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--text);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.logo-wordmark {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.logo-plan {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.2px;
+  padding-left: 38px;
+}
+
+/* Nav */
+.sidebar-nav {
+  padding: 8px 0;
+}
+
+.nav-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 10px 14px 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  margin: 1px 8px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.nav-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: var(--surface2);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.nav-item.active .nav-icon { opacity: 1; }
+
+/* Accounts list in sidebar */
+.accounts-section {
+  flex: 1;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+}
+
+.accounts-section::-webkit-scrollbar { width: 3px; }
+.accounts-section::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.accounts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 4px;
+}
+
+.accounts-header-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.account-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  margin: 1px 8px;
+  transition: background 0.12s;
+}
+
+.account-item:hover { background: var(--surface2); }
+
+.account-item.selected {
+  background: var(--surface2);
+}
+
+.account-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.account-info { flex: 1; min-width: 0; }
+
+.account-email-text {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-meta {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.account-check {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  color: transparent;
+  flex-shrink: 0;
+  transition: all 0.1s;
+}
+
+.account-item.selected .account-check {
+  background: var(--text);
+  border-color: var(--text);
+  color: #fff;
+}
+
+.account-delete-btn {
+  opacity: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--negative-bg);
+  border: none;
+  color: var(--negative);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  flex-shrink: 0;
+  transition: opacity 0.12s;
+}
+
+.account-item:hover .account-delete-btn { opacity: 1; }
+
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-add-account {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.btn-add-account:hover {
+  background: var(--surface2);
+  border-color: var(--border2);
+  color: var(--text);
+}
+
+/* ─── MAIN ────────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+  background: var(--bg);
+}
+
+/* ─── TOPBAR ──────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.topbar-left { flex: 1; min-width: 120px; }
+
+.topbar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+
+.topbar-subtitle {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+/* Date controls */
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.quick-date-presets {
+  display: flex;
+  align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2px;
+  gap: 1px;
+}
+
+.quick-date-btn {
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.12s;
+}
+
+.quick-date-btn:hover { color: var(--text); background: rgba(0,0,0,0.04); }
+
+.quick-date-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: var(--shadow-xs);
+}
+
+.date-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: 'Geist Mono', monospace;
+  cursor: pointer;
+  font-weight: 400;
+  height: 32px;
+  transition: border-color 0.15s;
+}
+
+.date-input:focus { outline: none; border-color: var(--border2); box-shadow: var(--shadow-focus); }
+
+/* ─── BUTTONS ─────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+  height: 34px;
+}
+
+.btn-primary {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn-ghost {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  background: var(--surface2);
+  border-color: var(--border2);
+}
+
+.btn-sync {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-sync:hover { background: var(--surface2); color: var(--text); }
+.btn-sync.syncing { opacity: 0.6; pointer-events: none; }
+.btn-sync.syncing .sync-icon { animation: spin 1s linear infinite; display: inline-block; }
+
+.btn-download {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 5px 12px;
+  font-size: 12px;
+  height: 30px;
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-download:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── CONTENT AREA ────────────────────────────────── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* ─── STAT CARDS ──────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  box-shadow: var(--shadow-xs);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border2);
+}
+
+/* Subtle top line */
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: 12px 12px 0 0;
+}
+
+.stat-card.total::before { background: #111827; }
+.stat-card.positive::before { background: #059669; }
+.stat-card.negative::before { background: #dc2626; }
+.stat-card.neutral::before { background: #d97706; }
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.1px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 40px;
+  line-height: 1;
+  margin-bottom: 6px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card.total .stat-value { color: var(--text); }
+.stat-card.positive .stat-value { color: var(--positive); }
+.stat-card.negative .stat-value { color: var(--negative); }
+.stat-card.neutral .stat-value { color: var(--neutral); }
+
+.stat-sub { font-size: 11.5px; color: var(--text-muted); font-weight: 400; }
+
+.stat-change {
+  position: absolute;
+  top: 16px;
+  right: 14px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.stat-card.positive .stat-change { color: var(--positive-text); background: var(--positive-bg); border: 1px solid var(--positive-border); }
+.stat-card.negative .stat-change { color: var(--negative-text); background: var(--negative-bg); border: 1px solid var(--negative-border); }
+.stat-card.neutral .stat-change { color: var(--neutral-text); background: var(--neutral-bg); border: 1px solid var(--neutral-border); }
+
+/* ─── PANELS ──────────────────────────────────────── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-xs);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+.panel-title .icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  background: var(--surface2);
+}
+
+/* Chart containers */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.chart-canvas { padding: 4px 0; }
+
+/* Breakdown rows */
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.breakdown-row:last-child { border-bottom: none; }
+
+.breakdown-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.breakdown-info { flex: 1.4; min-width: 0; }
+.breakdown-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.breakdown-email { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+.score-badge { font-size: 12px; font-weight: 700; flex-shrink: 0; padding: 3px 10px; border-radius: 20px; background: var(--surface2); color: var(--text-muted); }
+.score-badge.pos { color: var(--positive-text); background: var(--positive-bg); }
+.score-badge.neg { color: var(--negative-text); background: var(--negative-bg); }
+
+/* Rank list */
+.rank-list { display: flex; flex-direction: column; gap: 0; }
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rank-item:last-child { border-bottom: none; }
+
+.rank-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rank-text { flex: 1; min-width: 0; font-size: 13px; color: var(--text); font-weight: 500; }
+.rank-text small { display: block; font-size: 11px; color: var(--text-muted); font-weight: 400; margin-top: 1px; }
+
+.rank-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--surface2);
+  padding: 2px 9px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+}
+
+/* ─── DOWNLOAD BAR ────────────────────────────────── */
+.download-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-xs);
+  flex-wrap: wrap;
+}
+
+.download-bar-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.download-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+/* ─── GOOGLE DRIVE PANEL ──────────────────────────── */
+.gdrive-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-xs);
+}
+
+.gdrive-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.gdrive-info { flex: 1; min-width: 200px; }
+.gdrive-info h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+.gdrive-info p { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.gdrive-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ─── INBOX ───────────────────────────────────────── */
+.inbox-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 12px;
+  box-shadow: var(--shadow-xs);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-box:focus-within {
+  border-color: var(--border2);
+  box-shadow: var(--shadow-focus);
+}
+
+.search-box input {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  flex: 1;
+  outline: none;
+  font-weight: 400;
+}
+
+.search-box input::placeholder { color: var(--text-dim); }
+
+.filter-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  transition: all 0.12s;
+  font-family: inherit;
+  box-shadow: var(--shadow-xs);
+}
+
+.filter-pill:hover { background: var(--surface2); color: var(--text); }
+.filter-pill.all.active { color: var(--text); background: var(--surface2); border-color: var(--border2); font-weight: 600; }
+.filter-pill.positive.active { color: var(--positive-text); background: var(--positive-bg); border-color: var(--positive-border); font-weight: 600; }
+.filter-pill.negative.active { color: var(--negative-text); background: var(--negative-bg); border-color: var(--negative-border); font-weight: 600; }
+.filter-pill.neutral.active { color: var(--neutral-text); background: var(--neutral-bg); border-color: var(--neutral-border); font-weight: 600; }
+
+.email-list { display: flex; flex-direction: column; gap: 4px; }
+
+.email-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.12s;
+  align-items: flex-start;
+  box-shadow: var(--shadow-xs);
+}
+
+.email-row:hover {
+  border-color: var(--border2);
+  box-shadow: var(--shadow-sm);
+}
+
+.email-sender-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.email-main { flex: 1; min-width: 0; }
+.email-row-top { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.email-from { font-size: 13px; font-weight: 600; color: var(--text); }
+.email-subject-row { font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+.email-subject-row strong { color: var(--text); font-weight: 600; }
+.email-snippet { font-size: 11.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+.email-date { font-size: 11px; color: var(--text-muted); font-weight: 400; font-family: 'Geist Mono', monospace; }
+
+.account-tag {
+  font-size: 10px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid var(--border);
+}
+
+/* ─── SENTIMENT BADGES ────────────────────────────── */
+.sentiment-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+.sentiment-badge.positive { color: var(--positive-text); background: var(--positive-bg); border-color: var(--positive-border); }
+.sentiment-badge.negative { color: var(--negative-text); background: var(--negative-bg); border-color: var(--negative-border); }
+.sentiment-badge.neutral  { color: var(--neutral-text); background: var(--neutral-bg); border-color: var(--neutral-border); }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.12s;
+}
+
+.page-btn:hover { border-color: var(--border2); background: var(--surface2); color: var(--text); }
+.page-btn.active { background: var(--text); border-color: var(--text); color: #fff; }
+.page-btn:disabled { opacity: 0.3; pointer-events: none; }
+
+/* ─── DETAIL PANEL ────────────────────────────────── */
+.detail-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 480px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
+}
+
+.detail-panel.open { transform: translateX(0); }
+
+.detail-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+}
+
+.detail-close {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.12s;
+  flex-shrink: 0;
+}
+
+.detail-close:hover { background: var(--surface3); color: var(--text); }
+
+.detail-subject { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.4; }
+.detail-meta { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+
+.meta-row { display: flex; gap: 10px; margin-bottom: 5px; font-size: 12.5px; align-items: flex-start; }
+.meta-label { color: var(--text-muted); min-width: 64px; font-weight: 500; font-size: 11px; padding-top: 1px; }
+.meta-value { color: var(--text-secondary); flex: 1; font-weight: 400; }
+
+.sentiment-detail { padding: 12px 18px; border-bottom: 1px solid var(--border); background: var(--bg); }
+
+.sentiment-bars-detail { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+
+.sbar-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; }
+.sbar-label { width: 60px; color: var(--text-secondary); font-weight: 500; font-size: 11.5px; }
+.sbar-track { flex: 1; height: 6px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+.sbar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.sbar-fill.pos { background: var(--positive); }
+.sbar-fill.neg { background: var(--negative); }
+.sbar-fill.neu { background: var(--neutral); }
+.sbar-val { width: 34px; text-align: right; color: var(--text); font-weight: 600; font-size: 12px; font-family: 'Geist Mono', monospace; }
+
+.detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 18px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.detail-body::-webkit-scrollbar { width: 3px; }
+
+/* ─── MODAL ───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 440px;
+  max-width: 95vw;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal h2 { font-size: 17px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.2px; color: var(--text); }
+.modal-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+
+.form-group { margin-bottom: 14px; }
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-weight: 400;
+  box-shadow: var(--shadow-xs);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--border2);
+  box-shadow: var(--shadow-focus);
+}
+
+.form-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.5; }
+.form-actions { display: flex; gap: 8px; margin-top: 18px; }
+
+/* ─── TOAST ───────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--text);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-lg);
+  padding: 11px 16px;
+  font-size: 13px;
+  color: #fff;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.24s ease;
+  max-width: 360px;
+  font-weight: 500;
+}
+
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(5,150,105,0.3); }
+.toast.error { border-color: rgba(220,38,38,0.3); }
+.toast.info { border-color: rgba(37,99,235,0.3); }
+
+/* ─── LOADING / EMPTY ─────────────────────────────── */
+.loading-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  gap: 8px;
+  font-weight: 400;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.empty-state { text-align: center; padding: 48px 20px; }
+.empty-state .empty-icon { font-size: 42px; margin-bottom: 12px; }
+.empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+.empty-state p { font-size: 13.5px; color: var(--text-muted); max-width: 260px; margin: 0 auto; line-height: 1.6; }
+
+.selected-accounts-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+.sel-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.sync-progress { font-size: 12px; color: var(--positive); font-weight: 500; display: none; align-items: center; gap: 5px; }
+.sync-progress.visible { display: flex; }
+
+/* ─── SETTINGS PAGE SPECIFIC ──────────────────────── */
+.settings-page {
+  max-width: 680px;
+}
+
+.settings-page-header {
+  margin-bottom: 20px;
+}
+
+.settings-page-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.settings-page-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+
+.settings-section-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.settings-section-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.settings-section-desc { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+.settings-connected-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--positive-text);
+  background: var(--positive-bg);
+  border: 1px solid var(--positive-border);
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-left: auto;
+}
+
+.settings-body { padding: 16px 20px; }
+
+.settings-info-bar {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+
+.settings-info-bar code {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  background: var(--surface3);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.settings-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--positive);
+  flex-shrink: 0;
+}
+
+/* ─── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 1100px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .charts-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .sidebar { width: 200px; min-width: 200px; }
+  .detail-panel { width: 100%; }
+  .content { padding: 14px 16px; }
+  .topbar { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-row">
+      <div class="logo-icon">📧</div>
+      <div class="logo-wordmark">Email Analytics</div>
+    </div>
+    <div class="logo-plan">Multi-Account Hub</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Navigation</div>
+    <div class="nav-item active" onclick="switchView('dashboard', this)">
+      <span class="nav-icon">⊞</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchView('inbox', this)">
+      <span class="nav-icon">◫</span> Inbox
+    </div>
+    <div class="nav-item" onclick="switchView('ai', this)">
+      <span class="nav-icon">✦</span> AI Insights
+    </div>
+    <div class="nav-item" onclick="switchView('subjects', this)">
+      <span class="nav-icon">≡</span> Top Subjects
+    </div>
+    <div class="nav-item" onclick="switchView('settings', this)">
+      <span class="nav-icon">⚙</span> Settings
+    </div>
+  </nav>
+
+  <div class="accounts-section">
+    <div class="accounts-header">
+      <span class="accounts-header-label">Accounts</span>
+    </div>
+    <div id="accountsList">
+      <div class="loading-overlay" style="padding:16px"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="btn-add-account" onclick="openAddModal()">
+      <span>+</span> Add Email Account
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-subtitle" id="topbarSubtitle">Email analytics overview</div>
+    </div>
+    <div class="date-range">
+      <div class="quick-date-presets">
+        <button class="quick-date-btn" onclick="setQuickDate(7)">7D</button>
+        <button class="quick-date-btn" onclick="setQuickDate(30)">30D</button>
+        <button class="quick-date-btn" onclick="setQuickDate(90)">3M</button>
+        <button class="quick-date-btn" onclick="setQuickDate(180)">6M</button>
+        <button class="quick-date-btn" onclick="setQuickDate(365)">1Y</button>
+        <button class="quick-date-btn" onclick="setQuickDate(0)">All</button>
+      </div>
+      <input type="date" class="date-input" id="dateFrom" placeholder="From">
+      <span style="color:var(--text-dim);font-size:13px">→</span>
+      <input type="date" class="date-input" id="dateTo" placeholder="To">
+      <button class="btn btn-ghost" onclick="clearDates()" style="height:32px;padding:0 10px;font-size:12px">Clear</button>
+      <button class="btn btn-ghost" onclick="applyFilters()" style="height:32px;padding:0 10px;font-size:12px">Apply</button>
+    </div>
+    <div class="sync-progress" id="syncProgress"><div class="spinner" style="width:14px;height:14px;border-width:1.5px"></div> Syncing…</div>
+    <button class="btn btn-primary" id="syncAllBtn" onclick="syncAll()" style="height:32px;padding:0 14px;font-size:12.5px">
+      <span class="sync-icon" style="font-size:11px">↻</span> Sync All
+    </button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ── DASHBOARD VIEW ── -->
+    <div class="view active" id="view-dashboard">
+      <div id="selectedAccountTags" class="selected-accounts-tags"></div>
+
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="stat-label">Total Emails</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-sub">All synced messages</div>
+        </div>
+        <div class="stat-card positive">
+          <div class="stat-label">Positive Replies</div>
+          <div class="stat-value" id="statPositive">—</div>
+          <div class="stat-change" id="statPosPct">—</div>
+          <div class="stat-sub">Interested leads</div>
+        </div>
+        <div class="stat-card negative">
+          <div class="stat-label">Negative Replies</div>
+          <div class="stat-value" id="statNegative">—</div>
+          <div class="stat-change" id="statNegPct">—</div>
+          <div class="stat-sub">Objections / unsubscribes</div>
+        </div>
+        <div class="stat-card neutral">
+          <div class="stat-label">Neutral Replies</div>
+          <div class="stat-value" id="statNeutral">—</div>
+          <div class="stat-change" id="statNeuPct">—</div>
+          <div class="stat-sub">Awaiting engagement</div>
+        </div>
+      </div>
+
+      <!-- Export bar -->
+      <div class="download-bar">
+        <div class="download-bar-label">↓ Export Emails</div>
+        <span style="font-size:12px;color:var(--text-muted)">Download by sentiment (date range applies):</span>
+        <div class="download-btns">
+          <button class="btn btn-download" onclick="downloadCSV('all')">All</button>
+          <button class="btn btn-download" style="color:var(--positive-text);border-color:var(--positive-border)" onclick="downloadCSV('positive')">Positive</button>
+          <button class="btn btn-download" style="color:var(--negative-text);border-color:var(--negative-border)" onclick="downloadCSV('negative')">Negative</button>
+          <button class="btn btn-download" style="color:var(--neutral-text);border-color:var(--neutral-border)" onclick="downloadCSV('neutral')">Neutral</button>
+        </div>
+      </div>
+
+      <!-- Google Drive panel -->
+      <div class="gdrive-panel">
+        <div class="gdrive-icon">⊞</div>
+        <div class="gdrive-info">
+          <h4>Export to Google Sheets</h4>
+          <p>Push filtered email data directly to a new or existing Google Sheet — Date, Sender, Domain, Sentiment &amp; more.</p>
+        </div>
+        <div class="gdrive-actions">
+          <button class="btn btn-primary" onclick="openExportModal('new')" style="font-size:12px;height:32px;padding:0 14px">+ New Sheet</button>
+          <button class="btn btn-ghost" onclick="openExportModal('append')" style="font-size:12px;height:32px;padding:0 14px">↩ Append to Sheet</button>
+        </div>
+      </div>
+
+      <div class="charts-grid" style="margin-bottom:12px">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">📈</div> Email Trend</div>
+          </div>
+          <div class="chart-canvas" style="height:200px"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">◉</div> Sentiment Split</div>
+          </div>
+          <div class="chart-canvas" style="height:200px;display:flex;align-items:center;justify-content:center">
+            <canvas id="donutChart" style="max-height:200px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col" style="margin-bottom:12px">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">⏰</div> Replies by Hour</div>
+          </div>
+          <div class="chart-canvas" style="height:150px"><canvas id="hourChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">📅</div> Replies by Weekday</div>
+          </div>
+          <div class="chart-canvas" style="height:150px"><canvas id="weekdayChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:12px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">☰</div> Per-Account Breakdown</div>
+        </div>
+        <div id="breakdownRows"><div class="loading-overlay"><div class="spinner"></div></div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">👤</div> Top Senders</div>
+          </div>
+          <div id="topSendersList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">◫</div> Accounts Overview</div>
+          </div>
+          <div id="accountsOverview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INBOX VIEW ── -->
+    <div class="view" id="view-inbox">
+      <div class="inbox-controls">
+        <div class="search-box">
+          <span style="color:var(--text-dim);font-size:13px">⌕</span>
+          <input type="text" id="searchInput" placeholder="Search emails, senders, subjects…" oninput="debounceSearch()">
+        </div>
+        <button class="filter-pill all active" onclick="setFilter('', this)">All</button>
+        <button class="filter-pill positive" onclick="setFilter('positive', this)">Positive</button>
+        <button class="filter-pill negative" onclick="setFilter('negative', this)">Negative</button>
+        <button class="filter-pill neutral" onclick="setFilter('neutral', this)">Neutral</button>
+        <button class="btn btn-ghost" style="padding:0 12px;height:32px;font-size:12px" onclick="downloadCSV(state.sentimentFilter || 'all')">↓ Export</button>
+      </div>
+      <div id="emailListContainer"><div class="loading-overlay"><div class="spinner"></div> Loading emails…</div></div>
+      <div id="paginationContainer"></div>
+    </div>
+
+    <!-- ── AI INSIGHTS VIEW ── -->
+    <div class="view" id="view-ai">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <div style="width:40px;height:40px;background:var(--text);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">✦</div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--text)">AI Intelligence Hub</div>
+          <div style="font-size:12.5px;color:var(--text-muted)">Smart suggestions derived from your actual email replies &amp; lead activity</div>
+        </div>
+        <button class="btn btn-ghost" style="margin-left:auto;height:32px;padding:0 14px;font-size:12px" onclick="loadAISuggestions()">↺ Refresh</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+        <div class="panel" style="text-align:center;padding:18px 14px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px">Best Hour to Send</div>
+          <div style="font-size:32px;font-weight:800;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums" id="aiBestHour">—</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px" id="aiBestHourSub">Loading…</div>
+        </div>
+        <div class="panel" style="text-align:center;padding:18px 14px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px">Best Day to Send</div>
+          <div style="font-size:32px;font-weight:800;color:var(--text);letter-spacing:-1px" id="aiBestDay">—</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px" id="aiBestDaySub">Loading…</div>
+        </div>
+        <div class="panel" style="text-align:center;padding:18px 14px">
+          <div style="font-size:10px;font-weight:600;letter-spacing:0.5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px">Avg Sentiment Score</div>
+          <div style="font-size:32px;font-weight:800;letter-spacing:-1px;color:var(--text)" id="aiAvgScore">—</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px" id="aiAvgScoreSub">Loading…</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title"><div class="icon">💡</div> Smart Suggestions</div></div>
+          <div id="aiSuggestionsList" style="padding:4px 0"><div class="loading-overlay" style="padding:28px"><div class="spinner"></div></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title"><div class="icon">⊕</div> Improvement Tips</div></div>
+          <div id="aiImprovementTips" style="padding:4px 0"><div class="loading-overlay" style="padding:28px"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:12px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">💬</div> Phrases in Positive Replies</div>
+          <div style="font-size:11.5px;color:var(--text-muted)">Keywords your leads use when interested</div>
+        </div>
+        <div id="aiPositivePhrases" style="padding:12px 2px 6px;display:flex;flex-wrap:wrap;gap:6px"><div class="loading-overlay" style="padding:18px"><div class="spinner"></div></div></div>
+      </div>
+      <div class="panel" style="margin-bottom:12px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">📊</div> Subject Line Performance</div>
+          <div style="font-size:11.5px;color:var(--text-muted)">Reply rate % by subject line</div>
+        </div>
+        <div id="aiSubjectPerf" style="padding:4px 0"><div class="loading-overlay" style="padding:28px"><div class="spinner"></div></div></div>
+      </div>
+      <div class="panel" style="margin-bottom:12px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">⚠</div> Negative Reply Patterns</div>
+          <div style="font-size:11.5px;color:var(--text-muted)">Common objections to address</div>
+        </div>
+        <div id="aiNegativePatterns" style="padding:12px 2px 6px;display:flex;flex-wrap:wrap;gap:6px"><div class="loading-overlay" style="padding:18px"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── TOP SUBJECTS VIEW ── -->
+    <div class="view" id="view-subjects">
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">≡</div> Most Replied Subject Lines</div>
+        </div>
+        <div id="subjectsList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS VIEW ── -->
+    <div class="view" id="view-settings">
+      <div class="settings-page">
+        <div class="settings-page-header">
+          <div class="settings-page-title">Settings</div>
+          <div class="settings-page-sub">Configure your email connections, data sync, and automation.</div>
+        </div>
+
+        <!-- Gmail OAuth -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div class="settings-icon-wrap">✉</div>
+            <div>
+              <div class="settings-section-title">Gmail OAuth</div>
+              <div class="settings-section-desc">Connect via OAuth to sync inbox automatically.</div>
+            </div>
+          </div>
+          <div class="settings-body">
+            <div class="settings-info-bar">
+              First, paste your Google OAuth credentials from <code>console.cloud.google.com</code> → Credentials → OAuth client. Use redirect URL: <code>https://your-domain.com/api/oauth/gmail/callback</code>
+            </div>
+            <div class="form-row-2">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Client ID</label>
+                <input type="text" class="form-input" placeholder="your-client-id.apps.googleusercontent.com" id="gmailClientId">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Client Secret</label>
+                <input type="password" class="form-input" placeholder="••••••••••••••••" id="gmailClientSecret">
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-ghost" style="font-size:12.5px">Save Credentials</button>
+              <button class="btn btn-primary" style="font-size:12.5px">Connect Gmail</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IMAP Inbox -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div class="settings-icon-wrap">◫</div>
+            <div>
+              <div class="settings-section-title">IMAP Inbox</div>
+              <div class="settings-section-desc">Connect any IMAP-supported mailbox (Outlook, Yahoo, custom).</div>
+            </div>
+            <div class="settings-connected-badge">
+              <span class="status-dot"></span> Connected
+            </div>
+          </div>
+          <div class="settings-body">
+            <div style="font-size:12px;color:var(--positive-text);background:var(--positive-bg);border:1px solid var(--positive-border);border-radius:6px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:6px">
+              <span class="status-dot"></span> lipika.blc@gmail.com · imap.gmail.com
+            </div>
+            <div class="form-row-2">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" placeholder="you@example.com">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">App Password</label>
+                <input type="password" class="form-input" placeholder="••••••••••••••••">
+              </div>
+            </div>
+            <div class="settings-divider"></div>
+            <div class="form-row-2">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">IMAP Host</label>
+                <input type="text" class="form-input" value="imap.gmail.com">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Port</label>
+                <input type="text" class="form-input" value="993">
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-primary" style="font-size:12.5px">Test &amp; Connect</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Google Sheets Sync -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div class="settings-icon-wrap">⊞</div>
+            <div>
+              <div class="settings-section-title">Google Sheets Sync</div>
+              <div class="settings-section-desc">Push email data to Google Sheets in 3 tabs: Raw / Replies / Campaigns.</div>
+            </div>
+            <div class="settings-connected-badge">
+              <span class="status-dot"></span> Connected
+            </div>
+          </div>
+          <div class="settings-body">
+            <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">
+              Connected via <code style="font-family:'Geist Mono',monospace;font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:4px">my-service-account@email-collector.iam.gserviceaccount.com</code>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Spreadsheet ID</label>
+              <input type="text" class="form-input" placeholder="From sheet URL: /spreadsheets/d/<ID>/edit">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Service Account JSON</label>
+              <textarea class="form-input" rows="4" style="resize:vertical;font-family:'Geist Mono',monospace;font-size:12px" placeholder='{"type":"service_account","client_email":"...","private_key":"..."}'></textarea>
+              <div class="form-hint">After connecting, share your sheet with the service account email shown in success toast.</div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-ghost" style="font-size:12.5px">Connect</button>
+              <button class="btn btn-primary" style="font-size:12.5px">Push to Sheet Now</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Automation -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <div class="settings-icon-wrap">⚙</div>
+            <div>
+              <div class="settings-section-title">Automation</div>
+              <div class="settings-section-desc">Auto sync interval and reply alerts.</div>
+            </div>
+          </div>
+          <div class="settings-body">
+            <div class="form-row-2">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Auto-Sync Every (minutes)</label>
+                <input type="number" class="form-input" value="60" min="5" max="1440">
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Reply Spike Alerts</label>
+                <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:13px;color:var(--text-secondary);font-weight:400;height:36px">
+                  <input type="checkbox" style="accent-color:var(--text);width:14px;height:14px">
+                  Notify on positive reply spikes
+                </label>
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button class="btn btn-primary" style="font-size:12.5px">Save</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- EMAIL DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-subject" id="detailSubject">—</div>
+  </div>
+  <div class="detail-meta" id="detailMeta"></div>
+  <div class="sentiment-detail">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:0.6px;text-transform:uppercase">Sentiment Analysis</span>
+      <span class="sentiment-badge" id="detailSentBadge">neutral</span>
+    </div>
+    <div class="sentiment-bars-detail">
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--positive)">Positive</div>
+        <div class="sbar-track"><div class="sbar-fill pos" id="sbarPos" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarPosVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--negative)">Negative</div>
+        <div class="sbar-track"><div class="sbar-fill neg" id="sbarNeg" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNegVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--neutral)">Neutral</div>
+        <div class="sbar-track"><div class="sbar-fill neu" id="sbarNeu" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNeuVal">0%</div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-body" id="detailBody">—</div>
+</div>
+
+<!-- ADD ACCOUNT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>Add Email Account</h2>
+    <div class="modal-subtitle">
+      Connect via IMAP using an <strong style="color:var(--text)">App Password</strong>.
+      For Gmail: Settings → Security → 2-Step Verification → App Passwords.
+    </div>
+    <div class="form-group">
+      <label class="form-label">Display Name (optional)</label>
+      <input type="text" class="form-input" id="inputName" placeholder="e.g. Work Gmail">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address *</label>
+      <input type="email" class="form-input" id="inputEmail" placeholder="you@gmail.com" oninput="autoDetectServer()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">App Password *</label>
+      <input type="password" class="form-input" id="inputPassword" placeholder="xxxx xxxx xxxx xxxx">
+      <div class="form-hint">Use an App Password, not your regular password.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">IMAP Server</label>
+      <input type="text" class="form-input" id="inputServer" placeholder="Auto-detected">
+      <div class="form-hint" id="serverHint">Will auto-detect based on email domain.</div>
+    </div>
+    <div id="addError" style="display:none;color:var(--negative-text);font-size:12.5px;padding:8px 12px;background:var(--negative-bg);border:1px solid var(--negative-border);border-radius:var(--radius);margin-top:8px;"></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" id="addBtn" onclick="submitAddAccount()" style="flex:1">Connect Account</button>
+      <button class="btn btn-ghost" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal" style="width:500px">
+    <h2 id="exportModalTitle">Export to Google Sheets</h2>
+    <div class="modal-subtitle" id="exportModalSubtitle">Create a new Google Sheet with your filtered email data.</div>
+
+    <div id="exportModeNew">
+      <div class="form-group">
+        <label class="form-label">Sheet Name</label>
+        <input type="text" class="form-input" id="exportSheetName" placeholder="Email Analytics 2025">
+      </div>
+    </div>
+    <div id="exportModeAppend" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Spreadsheet ID</label>
+        <input type="text" class="form-input" id="exportSpreadsheetId" placeholder="Paste your Google Sheet ID here">
+        <div class="form-hint">From the URL: docs.google.com/spreadsheets/d/<strong>ID</strong>/edit</div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:12px">
+      <div style="font-size:11.5px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">Filter (applies current date range &amp; accounts)</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer;color:var(--text-secondary)"><input type="radio" name="exportSentiment" value="" checked> All</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer;color:var(--positive-text)"><input type="radio" name="exportSentiment" value="positive"> Positive</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer;color:var(--negative-text)"><input type="radio" name="exportSentiment" value="negative"> Negative</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer;color:var(--neutral-text)"><input type="radio" name="exportSentiment" value="neutral"> Neutral</label>
+      </div>
+    </div>
+
+    <div id="exportStatus" style="display:none;font-size:12.5px;padding:9px 12px;border-radius:var(--radius);margin-bottom:10px"></div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" id="exportBtn" onclick="doExport()" style="flex:1">Export to Google Sheets</button>
+      <button class="btn btn-ghost" onclick="closeExportModal()">Cancel</button>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+      Requires <code style="font-family:'Geist Mono',monospace;background:var(--surface2);padding:1px 4px;border-radius:3px;font-size:10.5px">google-auth</code>, <code style="font-family:'Geist Mono',monospace;background:var(--surface2);padding:1px 4px;border-radius:3px;font-size:10.5px">google-api-python-client</code> and <code style="font-family:'Geist Mono',monospace;background:var(--surface2);padding:1px 4px;border-radius:3px;font-size:10.5px">google_credentials.json</code>.
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─── HELPERS ─────────────────────────────────────── */
+const AVATAR_COLORS = ['#3b5cf6','#7c3aed','#059669','#dc2626','#d97706','#0891b2','#db2777','#65a30d'];
+const colorCache = {};
+function avatarColor(key) {
+  if (!colorCache[key]) colorCache[key] = AVATAR_COLORS[Object.keys(colorCache).length % AVATAR_COLORS.length];
+  return colorCache[key];
+}
+function initials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return (p[0][0] + (p[1]?.[0] || '')).toUpperCase();
+}
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function sentimentEmoji(s) { return {positive:'↑',negative:'↓',neutral:'→'}[s]||'→'; }
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+/* ─── STATE ───────────────────────────────────────── */
+let state = {
+  accounts: [], selectedAccounts: [],
+  currentView: 'dashboard',
+  sentimentFilter: '', searchQuery: '', currentPage: 1,
+  dateFrom: '', dateTo: '',
+  trendChart: null, donutChart: null, hourChart: null, weekdayChart: null,
+  searchTimer: null,
+  statsData: null,
+  exportMode: 'new',
+};
+
+/* ─── INIT ────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => { loadAccounts(); });
+
+/* ─── ACCOUNTS ────────────────────────────────────── */
+async function loadAccounts() {
+  const res = await fetch('/api/accounts');
+  state.accounts = await res.json();
+  renderAccounts();
+  if (state.accounts.length > 0) {
+    state.selectedAccounts = state.accounts.map(a => a.id);
+    renderAccountSelections();
+    loadStats();
+    if (state.currentView === 'inbox') loadEmails();
+  }
+}
+
+function renderAccounts() {
+  const el = document.getElementById('accountsList');
+  if (!state.accounts.length) {
+    el.innerHTML = `<div style="padding:14px 16px;text-align:center;color:var(--text-muted);font-size:12px;line-height:1.7">No accounts yet.<br>Add your first email account below.</div>`;
+    return;
+  }
+  el.innerHTML = state.accounts.map(a => {
+    const color = avatarColor(a.email);
+    const isSelected = state.selectedAccounts.includes(a.id);
+    const lastSync = a.last_synced ? new Date(a.last_synced).toLocaleDateString() : 'Never';
+    return `
+    <div class="account-item ${isSelected?'selected':''}" onclick="toggleAccount(${a.id})" id="acc-${a.id}">
+      <div class="account-avatar" style="background:${color}">${initials(a.display_name||a.email)}</div>
+      <div class="account-info">
+        <div class="account-email-text">${a.display_name||a.email.split('@')[0]}</div>
+        <div class="account-meta">${a.total_emails||0} · ${lastSync}</div>
+      </div>
+      <div class="account-check">${isSelected?'✓':''}</div>
+      <button class="account-delete-btn" onclick="event.stopPropagation();deleteAccount(${a.id})" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderAccountSelections() {
+  const el = document.getElementById('selectedAccountTags'); if (!el) return;
+  el.innerHTML = state.selectedAccounts.map(id => {
+    const a = state.accounts.find(x => x.id === id); if (!a) return '';
+    const color = avatarColor(a.email);
+    return `<div class="sel-tag" style="background:${color}14;color:${color};border-color:${color}28">
+      <span style="font-size:9px">${initials(a.display_name||a.email)}</span>${a.display_name||a.email.split('@')[0]}
+    </div>`;
+  }).join('');
+}
+
+function toggleAccount(id) {
+  if (state.selectedAccounts.includes(id)) {
+    if (state.selectedAccounts.length === 1) return;
+    state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  } else { state.selectedAccounts.push(id); }
+  renderAccounts(); renderAccountSelections();
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+  if (state.currentView === 'subjects') renderExtendedViews();
+  if (state.currentView === 'ai') loadAISuggestions();
+}
+
+async function deleteAccount(id) {
+  if (!confirm('Remove this account? All synced emails will be deleted.')) return;
+  await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+  state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  showToast('Account removed', 'info');
+  loadAccounts();
+}
+
+/* ─── ADD ACCOUNT MODAL ───────────────────────────── */
+function openAddModal() {
+  document.getElementById('addModal').classList.add('open');
+  ['inputEmail','inputPassword','inputName','inputServer'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('addError').style.display='none';
+  document.getElementById('serverHint').textContent='Will auto-detect based on email domain.';
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+const IMAP_MAP = {
+  'gmail.com':'imap.gmail.com','yahoo.com':'imap.mail.yahoo.com',
+  'outlook.com':'imap-mail.outlook.com','hotmail.com':'imap-mail.outlook.com',
+  'live.com':'imap-mail.outlook.com','icloud.com':'imap.mail.me.com',
+  'zoho.com':'imap.zoho.com','aol.com':'imap.aol.com',
+};
+function autoDetectServer() {
+  const email = document.getElementById('inputEmail').value;
+  const domain = email.split('@')[1]?.toLowerCase();
+  const server = IMAP_MAP[domain] || (domain ? `imap.${domain}` : '');
+  document.getElementById('inputServer').value = server;
+  document.getElementById('serverHint').textContent = server ? `Detected: ${server}` : 'Will auto-detect based on email domain.';
+}
+
+async function submitAddAccount() {
+  const btn = document.getElementById('addBtn');
+  const errEl = document.getElementById('addError');
+  const email = document.getElementById('inputEmail').value.trim();
+  const pass = document.getElementById('inputPassword').value.trim();
+  const name = document.getElementById('inputName').value.trim();
+  const server = document.getElementById('inputServer').value.trim();
+  if (!email || !pass) { errEl.style.display='block'; errEl.textContent='Email and app password are required.'; return; }
+  btn.textContent = 'Connecting…'; btn.disabled = true; errEl.style.display = 'none';
+  try {
+    const res = await fetch('/api/accounts', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, app_password: pass, display_name: name, imap_server: server })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.style.display='block'; errEl.textContent=data.error||'Failed to connect.'; }
+    else { closeAddModal(); showToast('Account connected! Starting sync…','success'); await loadAccounts(); syncAccount(data.account.id); }
+  } catch(e) { errEl.style.display='block'; errEl.textContent='Connection failed. Check server address.'; }
+  btn.textContent = 'Connect Account'; btn.disabled = false;
+}
+
+/* ─── SYNC ────────────────────────────────────────── */
+async function syncAccount(id) {
+  const res = await fetch(`/api/sync/${id}`,{method:'POST'});
+  const data = await res.json();
+  if (data.success) { showToast(data.message,'info'); pollSyncStatus(id); }
+}
+
+async function syncAll() {
+  const btn = document.getElementById('syncAllBtn');
+  const prog = document.getElementById('syncProgress');
+  btn.classList.add('syncing'); prog.classList.add('visible');
+  await fetch('/api/sync/all',{method:'POST'});
+  showToast('Syncing all accounts in background…','info');
+  setTimeout(()=>{ btn.classList.remove('syncing'); prog.classList.remove('visible'); loadAccounts(); loadStats(); if(state.currentView==='inbox') loadEmails(); }, 8000);
+}
+
+function pollSyncStatus(id) {
+  let polls = 0;
+  const iv = setInterval(async () => {
+    if (++polls > 20) { clearInterval(iv); return; }
+    const data = await (await fetch(`/api/sync/status/${id}`)).json();
+    const a = state.accounts.find(x => x.id === id);
+    if (a) { a.total_emails = data.total_emails; a.last_synced = data.last_synced; }
+    renderAccounts();
+    if (polls > 5) { clearInterval(iv); loadStats(); if(state.currentView==='inbox') loadEmails(); showToast(`Sync complete! ${data.total_emails} emails loaded.`,'success'); }
+  }, 3000);
+}
+
+/* ─── VIEW SWITCHING ──────────────────────────────── */
+function switchView(view, navEl) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  navEl.classList.add('active');
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  state.currentView = view;
+  const titles = {
+    dashboard:['Dashboard','Email analytics overview'],
+    inbox:['Inbox','Browse and filter emails'],
+    ai:['AI Intelligence Hub','Smart suggestions from your email data'],
+    subjects:['Top Subjects','Most replied subject lines'],
+    settings:['Settings','Configure connections and automation'],
+  };
+  document.getElementById('topbarTitle').textContent = (titles[view]||['',''])[0];
+  document.getElementById('topbarSubtitle').textContent = (titles[view]||['',''])[1];
+  if (view === 'inbox') loadEmails();
+  if (view === 'subjects') renderExtendedViews();
+  if (view === 'ai') loadAISuggestions();
+  closeDetail();
+}
+
+/* ─── FILTERS ─────────────────────────────────────── */
+function applyFilters() {
+  state.dateFrom = document.getElementById('dateFrom').value;
+  state.dateTo = document.getElementById('dateTo').value;
+  state.currentPage = 1;
+  document.querySelectorAll('.quick-date-btn').forEach(b => b.classList.remove('active'));
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+  if (state.currentView === 'subjects') renderExtendedViews();
+  if (state.currentView === 'ai') loadAISuggestions();
+}
+function clearDates() {
+  ['dateFrom','dateTo'].forEach(id => document.getElementById(id).value='');
+  state.dateFrom=''; state.dateTo='';
+  document.querySelectorAll('.quick-date-btn').forEach(b => b.classList.remove('active'));
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+}
+function setQuickDate(days) {
+  const today = new Date();
+  const toStr = today.toISOString().split('T')[0];
+  document.querySelector('#dateTo').value = toStr;
+  if (days === 0) {
+    document.querySelector('#dateFrom').value = '';
+    state.dateFrom = ''; state.dateTo = '';
+    document.querySelector('#dateTo').value = '';
+  } else {
+    const from = new Date(today);
+    from.setDate(from.getDate() - days);
+    const fromStr = from.toISOString().split('T')[0];
+    document.querySelector('#dateFrom').value = fromStr;
+    state.dateFrom = fromStr; state.dateTo = toStr;
+  }
+  document.querySelectorAll('.quick-date-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  state.currentPage = 1;
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+  if (state.currentView === 'subjects') renderExtendedViews();
+  if (state.currentView === 'ai') loadAISuggestions();
+}
+function setFilter(sentiment, btn) {
+  state.sentimentFilter = sentiment; state.currentPage = 1;
+  document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active'); loadEmails();
+}
+function debounceSearch() {
+  clearTimeout(state.searchTimer);
+  state.searchTimer = setTimeout(()=>{ state.searchQuery=document.getElementById('searchInput').value; state.currentPage=1; loadEmails(); }, 400);
+}
+function buildParams() {
+  const p = new URLSearchParams();
+  state.selectedAccounts.forEach(id => p.append('accounts[]', id));
+  if (state.dateFrom) p.append('date_from', state.dateFrom);
+  if (state.dateTo) p.append('date_to', state.dateTo);
+  return p.toString();
+}
+
+/* ─── STATS ───────────────────────────────────────── */
+async function loadStats() {
+  if (!state.accounts.length) { renderEmptyDashboard(); return; }
+  const res = await fetch('/api/stats?' + buildParams());
+  const data = await res.json();
+  state.statsData = data;
+  renderStats(data);
+}
+
+function renderStats(data) {
+  const total = data.total || 0;
+  document.getElementById('statTotal').textContent = total.toLocaleString();
+  document.getElementById('statPositive').textContent = data.positive.toLocaleString();
+  document.getElementById('statNegative').textContent = data.negative.toLocaleString();
+  document.getElementById('statNeutral').textContent = data.neutral.toLocaleString();
+  if (total > 0) {
+    document.getElementById('statPosPct').textContent = Math.round(data.positive/total*100) + '%';
+    document.getElementById('statNegPct').textContent = Math.round(data.negative/total*100) + '%';
+    document.getElementById('statNeuPct').textContent = Math.round(data.neutral/total*100) + '%';
+  }
+  renderTrendChart(data.trend);
+  renderDonutChart(data.positive, data.negative, data.neutral);
+  renderHourChart(data.hourly || []);
+  renderWeekdayChart(data.weekday || []);
+  renderBreakdown(data.by_account);
+  renderTopSenders(data.top_senders);
+  renderAccountsOverview();
+  if (state.currentView === 'subjects') renderSubjects(data.top_subjects || []);
+}
+
+function renderEmptyDashboard() {
+  ['statTotal','statPositive','statNegative','statNeutral'].forEach(id => document.getElementById(id).textContent='0');
+}
+
+function renderExtendedViews() {
+  if (state.statsData) {
+    if (state.currentView === 'subjects') renderSubjects(state.statsData.top_subjects || []);
+  } else { loadStats(); }
+}
+
+/* ─── CHARTS ──────────────────────────────────────── */
+const CHART_DEFAULTS = {
+  plugins: { legend: { labels: { color: '#6b7280', boxWidth: 10, font: { size: 11, family: "'Geist'", weight: '500' } } } },
+  scales: {
+    x: { ticks: { color: '#9ca3af', font: { size: 10, weight: '400' } }, grid: { color: '#f3f4f6' }, border: { color: '#e5e7eb' } },
+    y: { ticks: { color: '#9ca3af', font: { size: 10, weight: '400' } }, grid: { color: '#f3f4f6' }, border: { color: '#e5e7eb' }, beginAtZero: true }
+  }
+};
+
+function renderTrendChart(trend) {
+  const ctx = document.getElementById('trendChart');
+  if (state.trendChart) state.trendChart.destroy();
+  const labels = trend.map(t => new Date(t.day).toLocaleDateString('en',{month:'short',day:'numeric'}));
+  state.trendChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'Positive', data:trend.map(t=>t.positive), borderColor:'#059669', backgroundColor:'rgba(5,150,105,0.06)', fill:true, tension:0.4, borderWidth:1.5, pointRadius:2, pointBackgroundColor:'#059669' },
+      { label:'Negative', data:trend.map(t=>t.negative), borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,0.05)', fill:true, tension:0.4, borderWidth:1.5, pointRadius:2, pointBackgroundColor:'#dc2626' },
+      { label:'Neutral',  data:trend.map(t=>t.neutral),  borderColor:'#d97706', backgroundColor:'rgba(217,119,6,0.04)', fill:true, tension:0.4, borderWidth:1.5, pointRadius:2, pointBackgroundColor:'#d97706' },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, ...CHART_DEFAULTS }
+  });
+}
+
+function renderDonutChart(pos, neg, neu) {
+  const ctx = document.getElementById('donutChart');
+  if (state.donutChart) state.donutChart.destroy();
+  state.donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels:['Positive','Negative','Neutral'], datasets:[{
+      data:[pos,neg,neu], backgroundColor:['#059669','#dc2626','#d97706'],
+      borderColor:'#ffffff', borderWidth:3, hoverOffset:4,
+    }]},
+    options: { responsive:true, maintainAspectRatio:false, cutout:'70%',
+      plugins: { legend: { position:'right', labels:{ color:'#6b7280', boxWidth:10, font:{size:11,weight:'500'}, padding:12 } } }
+    }
+  });
+}
+
+function renderHourChart(hourly) {
+  const ctx = document.getElementById('hourChart');
+  if (state.hourChart) state.hourChart.destroy();
+  const allHours = Array.from({length:24},(_,i)=>i);
+  const map = {}; hourly.forEach(h => map[h.hour]=h.cnt);
+  const labels = allHours.map(h => h===0?'12a':h<12?`${h}a`:h===12?'12p':`${h-12}p`);
+  state.hourChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets:[{ label:'Replies', data:allHours.map(h=>map[h]||0), backgroundColor:'rgba(17,24,39,0.08)', borderColor:'#374151', borderWidth:1, borderRadius:3 }] },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ display:false } },
+      scales: { x:{ ticks:{color:'#9ca3af',font:{size:9},maxRotation:0}, grid:{display:false} }, y:{ ticks:{color:'#9ca3af',font:{size:9}}, grid:{color:'#f3f4f6'}, beginAtZero:true } }
+    }
+  });
+}
+
+function renderWeekdayChart(weekday) {
+  const ctx = document.getElementById('weekdayChart');
+  if (state.weekdayChart) state.weekdayChart.destroy();
+  const allDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const map = {}; weekday.forEach(w => map[w.day_name]=w.cnt);
+  state.weekdayChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels:allDays, datasets:[{ label:'Replies', data:allDays.map(d=>map[d]||0), backgroundColor:allDays.map(d=>['Sat','Sun'].includes(d)?'rgba(217,119,6,0.12)':'rgba(17,24,39,0.08)'), borderColor:allDays.map(d=>['Sat','Sun'].includes(d)?'#d97706':'#374151'), borderWidth:1, borderRadius:3 }] },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{ ticks:{color:'#9ca3af',font:{size:10}}, grid:{display:false} }, y:{ ticks:{color:'#9ca3af',font:{size:10}}, grid:{color:'#f3f4f6'}, beginAtZero:true } }
+    }
+  });
+}
+
+/* ─── BREAKDOWN / SENDERS ─────────────────────────── */
+function renderBreakdown(byAccount) {
+  const el = document.getElementById('breakdownRows');
+  if (!byAccount?.length) { el.innerHTML=`<div class="empty-state" style="padding:24px"><div class="empty-icon">📊</div><p>No data yet. Sync your accounts first.</p></div>`; return; }
+  el.innerHTML = byAccount.map(a => {
+    const total = a.total||1;
+    const pp=Math.round(a.positive/total*100), np=Math.round(a.negative/total*100), nup=100-pp-np;
+    const color = avatarColor(a.email);
+    const scoreNum = a.avg_score||0;
+    const scoreClass = scoreNum>0.05?'pos':scoreNum<-0.05?'neg':'';
+    return `<div class="breakdown-row">
+      <div class="breakdown-avatar" style="background:${color}">${initials(a.display_name||a.email)}</div>
+      <div class="breakdown-info">
+        <div class="breakdown-name">${a.display_name||a.email.split('@')[0]}</div>
+        <div class="breakdown-email">${a.email} · ${a.total} emails</div>
+      </div>
+      <div class="breakdown-bars" style="flex:2">
+        <div style="display:flex;gap:2px;height:4px;border-radius:2px;overflow:hidden;margin-bottom:4px">
+          <div style="flex:${pp||1};background:var(--positive)"></div>
+          <div style="flex:${np||1};background:var(--negative)"></div>
+          <div style="flex:${nup||1};background:var(--neutral)"></div>
+        </div>
+        <div style="display:flex;gap:8px;font-size:10.5px;font-family:'Geist Mono',monospace">
+          <span style="color:var(--positive);font-weight:500">+${a.positive}</span>
+          <span style="color:var(--negative);font-weight:500">-${a.negative}</span>
+          <span style="color:var(--neutral);font-weight:500">~${a.neutral}</span>
+        </div>
+      </div>
+      <div class="score-badge ${scoreClass}">${scoreNum>=0?'+':''}${scoreNum.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTopSenders(senders) {
+  const el = document.getElementById('topSendersList');
+  if (!senders?.length) { el.innerHTML=`<div style="text-align:center;padding:18px;color:var(--text-muted);font-size:13px">No data yet</div>`; return; }
+  const max = senders[0]?.cnt||1;
+  el.innerHTML = senders.map((s,i)=>{
+    const color = avatarColor(s.sender_email||i);
+    const pct = Math.round(s.cnt/max*100);
+    const name = s.sender_email?.split('@')[0]||'?';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div style="width:24px;height:24px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0">${initials(name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.sender_email||'(unknown)'}</div>
+        <div style="height:3px;background:var(--surface2);border-radius:2px;margin-top:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width 0.5s ease"></div>
+        </div>
+      </div>
+      <div style="font-size:11.5px;font-weight:600;color:var(--text-secondary);font-family:'Geist Mono',monospace">${s.cnt}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAccountsOverview() {
+  const el = document.getElementById('accountsOverview');
+  if (!state.accounts.length) { el.innerHTML=`<div style="text-align:center;padding:18px;color:var(--text-muted);font-size:13px">No accounts added</div>`; return; }
+  el.innerHTML = state.accounts.map(a => {
+    const color = avatarColor(a.email);
+    const lastSync = a.last_synced?new Date(a.last_synced).toLocaleString():'Never';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div class="breakdown-avatar" style="background:${color};width:26px;height:26px;font-size:9px">${initials(a.display_name||a.email)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.email}</div>
+        <div style="font-size:10.5px;color:var(--text-muted)">Last sync: ${lastSync}</div>
+      </div>
+      <button class="btn btn-ghost" style="padding:0 8px;height:26px;font-size:11px" onclick="syncAccount(${a.id})">↻</button>
+    </div>`;
+  }).join('');
+}
+
+/* ─── SUBJECTS ────────────────────────────────────── */
+function renderSubjects(subjects) {
+  const el = document.getElementById('subjectsList');
+  if (!subjects?.length) { el.innerHTML=`<div class="empty-state" style="padding:28px"><div class="empty-icon">≡</div><p>No subject data yet.</p></div>`; return; }
+  el.innerHTML = `<div class="rank-list">` + subjects.map((s,i)=>{
+    const total = s.cnt||1;
+    const pp=Math.round(s.positive/total*100), np=Math.round(s.negative/total*100), nup=100-pp-np;
+    return `<div class="rank-item">
+      <div class="rank-num">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px">${escHtml(s.subject)}</div>
+        <div style="display:flex;gap:8px;font-size:10.5px;margin-top:3px;font-family:'Geist Mono',monospace">
+          <span style="color:var(--positive)">+${s.positive}</span>
+          <span style="color:var(--negative)">-${s.negative}</span>
+          <span style="color:var(--neutral)">~${s.neutral}</span>
+        </div>
+        <div style="height:3px;background:var(--surface2);border-radius:2px;margin-top:5px;overflow:hidden">
+          <div style="display:flex;height:100%">
+            <div style="flex:${pp||1};background:var(--positive)"></div>
+            <div style="flex:${np||1};background:var(--negative)"></div>
+            <div style="flex:${nup||1};background:var(--neutral)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="rank-count">${s.cnt}</div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+/* ─── EMAILS ──────────────────────────────────────── */
+async function loadEmails() {
+  if (!state.accounts.length) {
+    document.getElementById('emailListContainer').innerHTML=`<div class="empty-state"><div class="empty-icon">◫</div><h3>No accounts yet</h3><p>Add an email account to start viewing your inbox.</p></div>`;
+    return;
+  }
+  document.getElementById('emailListContainer').innerHTML=`<div class="loading-overlay"><div class="spinner"></div> Loading emails…</div>`;
+  const params = new URLSearchParams();
+  state.selectedAccounts.forEach(id => params.append('accounts[]',id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+  if (state.sentimentFilter) params.append('sentiment', state.sentimentFilter);
+  if (state.searchQuery) params.append('search', state.searchQuery);
+  params.append('page', state.currentPage);
+  params.append('per_page', 100);
+  params.append('folder', 'INBOX');
+  const data = await (await fetch('/api/emails?'+params)).json();
+  renderEmailList(data.emails, data.total);
+  renderPagination(data.pages, data.page, data.total);
+}
+
+function renderEmailList(emails, total) {
+  const el = document.getElementById('emailListContainer');
+  if (!emails?.length) {
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">◫</div><h3>No emails found</h3><p>${state.sentimentFilter||state.searchQuery?'Try adjusting your filters.':'Sync your accounts to load emails.'}</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px">${total.toLocaleString()} emails</div>
+    <div class="email-list">${emails.map(e=>{
+      const color = avatarColor(e.sender_email||e.sender);
+      const date = new Date(e.date).toLocaleDateString('en',{month:'short',day:'numeric',year:'2-digit'});
+      const time = new Date(e.date).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      const fromName = e.sender?.replace(/<[^>]+>/,'').trim()||e.sender_email||'?';
+      return `<div class="email-row" onclick="openEmail(${e.id})">
+        <div class="email-sender-avatar" style="background:${color}">${initials(fromName)}</div>
+        <div class="email-main">
+          <div class="email-row-top">
+            <div class="email-from">${escHtml(fromName.substring(0,30))}</div>
+            <div class="account-tag">${e.account_name||e.account_email?.split('@')[1]||''}</div>
+          </div>
+          <div class="email-subject-row"><strong>${escHtml(e.subject||'(No Subject)')}</strong></div>
+          <div class="email-snippet">${escHtml(e.snippet||'')}</div>
+        </div>
+        <div class="email-meta">
+          <div class="email-date">${date}</div>
+          <div class="sentiment-badge ${e.sentiment}">${e.sentiment}</div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function renderPagination(pages, current, total) {
+  const el = document.getElementById('paginationContainer');
+  if (pages<=1){el.innerHTML='';return;}
+  let btns = `<button class="page-btn" onclick="goPage(${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  const range=[];
+  for(let i=Math.max(1,current-2);i<=Math.min(pages,current+2);i++) range.push(i);
+  if(range[0]>1){btns+=`<button class="page-btn" onclick="goPage(1)">1</button>`;if(range[0]>2)btns+=`<span style="color:var(--text-dim)">…</span>`;}
+  range.forEach(p=>btns+=`<button class="page-btn ${p===current?'active':''}" onclick="goPage(${p})">${p}</button>`);
+  if(range[range.length-1]<pages){if(range[range.length-1]<pages-1)btns+=`<span style="color:var(--text-dim)">…</span>`;btns+=`<button class="page-btn" onclick="goPage(${pages})">${pages}</button>`;}
+  btns+=`<button class="page-btn" onclick="goPage(${current+1})" ${current>=pages?'disabled':''}>›</button>`;
+  el.innerHTML=`<div class="pagination">${btns}<span style="font-size:11.5px;color:var(--text-muted)">${total.toLocaleString()} total</span></div>`;
+}
+function goPage(p){state.currentPage=p;loadEmails();document.querySelector('.content').scrollTop=0;}
+
+/* ─── EMAIL DETAIL ────────────────────────────────── */
+async function openEmail(id) {
+  const e = await (await fetch(`/api/emails/${id}`)).json();
+  document.getElementById('detailSubject').textContent = e.subject||'(No Subject)';
+  document.getElementById('detailMeta').innerHTML = `
+    <div class="meta-row"><div class="meta-label">From</div><div class="meta-value">${escHtml(e.sender||'—')}</div></div>
+    <div class="meta-row"><div class="meta-label">To</div><div class="meta-value">${escHtml(e.recipient||'—')}</div></div>
+    <div class="meta-row"><div class="meta-label">Date</div><div class="meta-value">${new Date(e.date).toLocaleString()}</div></div>
+    <div class="meta-row"><div class="meta-label">Account</div><div class="meta-value">${e.account_email||'—'}</div></div>
+    ${e.sender_domain?`<div class="meta-row"><div class="meta-label">Domain</div><div class="meta-value">${escHtml(e.sender_domain)}</div></div>`:''}
+    ${e.phone_numbers?`<div class="meta-row"><div class="meta-label">Phone</div><div class="meta-value">${escHtml(e.phone_numbers)}</div></div>`:''}
+    ${e.job_title?`<div class="meta-row"><div class="meta-label">Title</div><div class="meta-value">${escHtml(e.job_title)}</div></div>`:''}
+    ${e.company_name?`<div class="meta-row"><div class="meta-label">Company</div><div class="meta-value">${escHtml(e.company_name)}</div></div>`:''}
+    <div class="meta-row"><div class="meta-label">Words</div><div class="meta-value">${e.word_count||0}</div></div>`;
+  const badge = document.getElementById('detailSentBadge');
+  badge.textContent = e.sentiment||'neutral';
+  badge.className = 'sentiment-badge '+(e.sentiment||'neutral');
+  const pos=Math.round((e.sentiment_positive||0)*100);
+  const neg=Math.round((e.sentiment_negative||0)*100);
+  const neu=Math.max(0,100-pos-neg);
+  setTimeout(()=>{
+    document.getElementById('sbarPos').style.width=pos+'%';
+    document.getElementById('sbarNeg').style.width=neg+'%';
+    document.getElementById('sbarNeu').style.width=neu+'%';
+    document.getElementById('sbarPosVal').textContent=pos+'%';
+    document.getElementById('sbarNegVal').textContent=neg+'%';
+    document.getElementById('sbarNeuVal').textContent=neu+'%';
+  },50);
+  document.getElementById('detailBody').textContent = e.body||e.snippet||'(Empty)';
+  document.getElementById('detailPanel').classList.add('open');
+}
+function closeDetail(){document.getElementById('detailPanel').classList.remove('open');}
+
+/* ─── CSV DOWNLOAD ────────────────────────────────── */
+function downloadCSV(sentiment) {
+  const params = new URLSearchParams();
+  state.selectedAccounts.forEach(id => params.append('accounts[]', id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+  if (sentiment && sentiment !== 'all') params.append('sentiment', sentiment);
+  const url = '/api/download/csv?' + params.toString();
+  const a = document.createElement('a'); a.href = url; a.download = '';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  showToast(`Downloading ${sentiment||'all'} emails CSV…`, 'info');
+}
+
+/* ─── GOOGLE EXPORT MODAL ─────────────────────────── */
+function openExportModal(mode) {
+  state.exportMode = mode;
+  document.getElementById('exportModal').classList.add('open');
+  document.getElementById('exportModeNew').style.display = mode==='new' ? 'block' : 'none';
+  document.getElementById('exportModeAppend').style.display = mode==='append' ? 'block' : 'none';
+  document.getElementById('exportModalTitle').textContent = mode==='new' ? 'New Google Sheet' : 'Append to Google Sheet';
+  document.getElementById('exportModalSubtitle').textContent = mode==='new'
+    ? 'Create a new Google Sheet with your filtered email data.'
+    : 'Append filtered email data rows to an existing Google Sheet.';
+  document.getElementById('exportStatus').style.display = 'none';
+  document.getElementById('exportBtn').disabled = false;
+  document.getElementById('exportBtn').textContent = mode==='new' ? 'Create & Export' : 'Append Data';
+}
+function closeExportModal(){document.getElementById('exportModal').classList.remove('open');}
+
+async function doExport() {
+  const btn = document.getElementById('exportBtn');
+  const statusEl = document.getElementById('exportStatus');
+  const sentiment = document.querySelector('input[name="exportSentiment"]:checked')?.value || '';
+  const payload = { accounts: state.selectedAccounts, date_from: state.dateFrom, date_to: state.dateTo, sentiment };
+  if (state.exportMode === 'new') {
+    payload.sheet_name = document.getElementById('exportSheetName').value.trim() || `Email Analytics ${new Date().toLocaleDateString()}`;
+  } else {
+    const sid = document.getElementById('exportSpreadsheetId').value.trim();
+    if (!sid) { statusEl.style.display='block'; statusEl.style.cssText='background:var(--negative-bg);border:1px solid var(--negative-border);color:var(--negative-text);padding:9px 12px;border-radius:var(--radius);font-size:12.5px'; statusEl.textContent='Please enter a Spreadsheet ID.'; return; }
+    payload.spreadsheet_id = sid;
+  }
+  btn.disabled = true; btn.textContent = 'Exporting…';
+  statusEl.style.display='block'; statusEl.style.cssText='background:var(--surface2);border:1px solid var(--border);color:var(--text-secondary);padding:9px 12px;border-radius:var(--radius);font-size:12.5px'; statusEl.textContent = 'Connecting to Google Sheets…';
+  const endpoint = state.exportMode==='new' ? '/api/google/export' : '/api/google/append';
+  try {
+    const res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.error) {
+      statusEl.style.cssText='background:var(--negative-bg);border:1px solid var(--negative-border);color:var(--negative-text);padding:9px 12px;border-radius:var(--radius);font-size:12.5px'; statusEl.textContent = data.error;
+    } else {
+      statusEl.style.cssText='background:var(--positive-bg);border:1px solid var(--positive-border);color:var(--positive-text);padding:9px 12px;border-radius:var(--radius);font-size:12.5px';
+      const rows = data.rows_exported||data.rows_appended||0;
+      statusEl.innerHTML = `${rows} rows exported! <a href="${data.sheet_url}" target="_blank" style="color:var(--text);font-weight:600;margin-left:6px">Open Sheet →</a>`;
+      showToast(`${rows} rows exported to Google Sheets!`, 'success');
+    }
+  } catch(e) {
+    statusEl.style.cssText='background:var(--negative-bg);color:var(--negative-text);padding:9px 12px;border-radius:var(--radius);font-size:12.5px'; statusEl.textContent = 'Network error: ' + e.message;
+  }
+  btn.disabled = false; btn.textContent = state.exportMode==='new'?'Create & Export':'Append Data';
+}
+
+/* ─── AI SUGGESTIONS ──────────────────────────────── */
+async function loadAISuggestions() {
+  if (!state.accounts.length) {
+    document.getElementById('aiSuggestionsList').innerHTML = '<div style="padding:18px;text-align:center;color:var(--text-muted);font-size:13px">Add and sync email accounts first.</div>';
+    ['aiImprovementTips','aiPositivePhrases','aiSubjectPerf','aiNegativePatterns'].forEach(id => { document.getElementById(id).innerHTML = ''; });
+    return;
+  }
+  ['aiSuggestionsList','aiImprovementTips','aiSubjectPerf'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="loading-overlay" style="padding:22px"><div class="spinner"></div></div>';
+  });
+  ['aiPositivePhrases','aiNegativePatterns'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="loading-overlay" style="padding:14px"><div class="spinner"></div></div>';
+  });
+  try {
+    const res = await fetch('/api/ai-suggestions?' + buildParams());
+    const d = await res.json();
+
+    const h = d.best_hour;
+    document.getElementById('aiBestHour').textContent = h !== null && h !== undefined ? (h===0?'12am': h<12?h+'am':h===12?'12pm':(h-12)+'pm') : '—';
+    document.getElementById('aiBestHourSub').textContent = d.best_hour_replies ? d.best_hour_replies + ' replies at this hour' : 'Not enough data';
+    document.getElementById('aiBestDay').textContent = d.best_day || '—';
+    document.getElementById('aiBestDaySub').textContent = d.best_day_replies ? d.best_day_replies + ' replies on this day' : 'Not enough data';
+    const score = d.avg_score || 0;
+    const scoreEl = document.getElementById('aiAvgScore');
+    scoreEl.textContent = (score >= 0 ? '+' : '') + score.toFixed(2);
+    scoreEl.style.color = score > 0.05 ? 'var(--positive)' : score < -0.05 ? 'var(--negative)' : 'var(--neutral)';
+    document.getElementById('aiAvgScoreSub').textContent = score > 0.1 ? 'Good — leads are receptive' : score > 0 ? 'Slightly positive' : score < -0.05 ? 'Negative — review sequences' : 'Neutral — try warmer copy';
+
+    const suggestions = d.suggestions || [];
+    document.getElementById('aiSuggestionsList').innerHTML = suggestions.length ? suggestions.map(s =>
+      `<div style="display:flex;align-items:flex-start;gap:9px;padding:10px 18px;border-bottom:1px solid var(--border)">
+        <span style="font-size:14px;flex-shrink:0">${s.icon||'💡'}</span>
+        <div>
+          <div style="font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:2px">${escHtml(s.title)}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5">${escHtml(s.text)}</div>
+        </div>
+      </div>`).join('') :
+      '<div style="padding:18px;text-align:center;color:var(--text-muted);font-size:13px">Sync more emails to generate suggestions.</div>';
+
+    const tips = d.improvement_tips || [];
+    document.getElementById('aiImprovementTips').innerHTML = tips.length ? tips.map(t =>
+      `<div style="display:flex;align-items:flex-start;gap:9px;padding:10px 18px;border-bottom:1px solid var(--border)">
+        <span style="font-size:14px;flex-shrink:0">${t.icon||'⊕'}</span>
+        <div>
+          <div style="font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:2px">${escHtml(t.title)}</div>
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5">${escHtml(t.text)}</div>
+        </div>
+      </div>`).join('') :
+      '<div style="padding:18px;text-align:center;color:var(--text-muted);font-size:13px">Not enough data yet.</div>';
+
+    const phrases = d.positive_phrases || [];
+    document.getElementById('aiPositivePhrases').innerHTML = phrases.length ? phrases.map(p =>
+      `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--positive-bg);border:1px solid var(--positive-border);border-radius:20px;font-size:12px;font-weight:500;color:var(--positive-text)">${escHtml(p.phrase)} <span style="background:var(--positive);color:#fff;border-radius:8px;padding:1px 5px;font-size:10px;font-family:'Geist Mono',monospace">×${p.count}</span></span>`
+    ).join('') : '<div style="color:var(--text-muted);font-size:12.5px;padding:6px">No positive replies detected yet.</div>';
+
+    const subjects = d.subject_performance || [];
+    document.getElementById('aiSubjectPerf').innerHTML = subjects.length ? `<div class="rank-list">` + subjects.map((s,i) => {
+      const replyRate = s.reply_rate || 0;
+      const barColor = replyRate >= 50 ? 'var(--positive)' : replyRate >= 20 ? 'var(--neutral)' : 'var(--negative)';
+      return `<div class="rank-item">
+        <div class="rank-num">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px">${escHtml(s.subject)}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <div style="flex:1;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden">
+              <div style="height:100%;width:${replyRate}%;background:${barColor};border-radius:2px;transition:width 0.6s ease"></div>
+            </div>
+            <span style="font-size:11px;font-weight:600;color:${barColor};flex-shrink:0;font-family:'Geist Mono',monospace">${replyRate.toFixed(1)}%</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('') + `</div>` : '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">No subject data yet.</div>';
+
+    const negPhrases = d.negative_phrases || [];
+    document.getElementById('aiNegativePatterns').innerHTML = negPhrases.length ? negPhrases.map(p =>
+      `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--negative-bg);border:1px solid var(--negative-border);border-radius:20px;font-size:12px;font-weight:500;color:var(--negative-text)">${escHtml(p.phrase)} <span style="background:var(--negative);color:#fff;border-radius:8px;padding:1px 5px;font-size:10px;font-family:'Geist Mono',monospace">×${p.count}</span></span>`
+    ).join('') : '<div style="color:var(--text-muted);font-size:12.5px;padding:6px">No negative patterns detected.</div>';
+
+  } catch(err) {
+    document.getElementById('aiSuggestionsList').innerHTML = `<div style="padding:18px;color:var(--negative-text);font-size:13px">Error loading AI data: ${err.message}</div>`;
+  }
+}
+
+/* ─── EVENTS ──────────────────────────────────────── */
+document.getElementById('addModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeAddModal(); });
+document.getElementById('exportModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeExportModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeDetail();closeAddModal();closeExportModal();} });
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+flask>=2.3.0
+textblob>=0.17.1

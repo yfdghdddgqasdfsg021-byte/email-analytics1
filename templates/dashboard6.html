@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Analytics Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   INBOX.IQ-INSPIRED HIGH-VISIBILITY DESIGN SYSTEM
+═══════════════════════════════════════════════════════ */
+:root {
+  --bg: #f0f2f7;
+  --surface: #ffffff;
+  --surface2: #f5f7fb;
+  --surface3: #eaedf5;
+  --border: #e0e4ef;
+  --border2: #c8cee0;
+  --text: #0d1117;
+  --text-muted: #374151;
+  --text-dim: #6b7280;
+  --accent: #1a56db;
+  --accent-light: #eff4ff;
+  --accent2: #4f46e5;
+  --positive: #027a48;
+  --positive-bg: #ecfdf3;
+  --positive-border: #6ce9a6;
+  --negative: #b42318;
+  --negative-bg: #fff1f0;
+  --negative-border: #fda29b;
+  --neutral: #b45309;
+  --neutral-bg: #fffbeb;
+  --neutral-border: #fcd34d;
+  --purple: #5b21b6;
+  --cyan: #0e7490;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.06), 0 6px 20px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 8px rgba(0,0,0,0.06), 0 16px 48px rgba(0,0,0,0.1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════
+   SIDEBAR — Dark slate, high contrast
+═══════════════════════════════════════ */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: #0f172a;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow: hidden;
+}
+
+.sidebar-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.sidebar-logo h1 {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.4);
+}
+.logo-badge {
+  display: inline-block;
+  background: rgba(59,130,246,0.2);
+  color: #93c5fd;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-top: 5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid rgba(59,130,246,0.25);
+}
+
+.sidebar-nav { padding: 10px 0 4px; }
+.nav-section-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  padding: 12px 18px 5px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.55);
+  font-size: 13.5px;
+  font-weight: 500;
+  border-left: 2.5px solid transparent;
+  margin: 1px 0;
+  transition: all 0.15s;
+  border-radius: 0 8px 8px 0;
+  margin-right: 10px;
+}
+.nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.07); }
+.nav-item.active {
+  color: #fff;
+  background: rgba(59,130,246,0.18);
+  border-left-color: #3b82f6;
+  font-weight: 700;
+}
+.nav-icon { font-size: 15px; width: 20px; text-align: center; }
+
+.accounts-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.accounts-section::-webkit-scrollbar { width: 3px; }
+.accounts-section::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+
+.account-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  cursor: pointer;
+  border-left: 2.5px solid transparent;
+  transition: all 0.12s;
+  margin-right: 8px;
+  border-radius: 0 8px 8px 0;
+}
+.account-item:hover { background: rgba(255,255,255,0.07); }
+.account-item.selected {
+  border-left-color: #3b82f6;
+  background: rgba(59,130,246,0.15);
+}
+.account-avatar {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
+  color: #fff; flex-shrink: 0;
+}
+.account-info { flex: 1; min-width: 0; }
+.account-email-text {
+  font-size: 12.5px; color: rgba(255,255,255,0.85); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.account-meta { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 1px; }
+.account-check {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0; transition: all 0.12s;
+  color: transparent;
+}
+.account-item.selected .account-check {
+  background: #3b82f6; border-color: #3b82f6; color: #fff;
+}
+.account-delete-btn {
+  opacity: 0; width: 20px; height: 20px; border-radius: 4px;
+  background: rgba(239,68,68,0.15); border: none;
+  color: #f87171; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; flex-shrink: 0; transition: opacity 0.12s;
+}
+.account-item:hover .account-delete-btn { opacity: 1; }
+
+.sidebar-footer {
+  padding: 14px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.btn-add-account {
+  width: 100%; padding: 10px;
+  background: rgba(59,130,246,0.12);
+  border: 1.5px dashed rgba(59,130,246,0.4);
+  border-radius: var(--radius-sm);
+  color: #93c5fd; font-size: 13px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 6px; transition: all 0.2s;
+  font-family: inherit;
+}
+.btn-add-account:hover { background: rgba(59,130,246,0.22); border-color: #3b82f6; color: #fff; }
+
+/* ═══════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════ */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+.topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface); flex-wrap: wrap;
+  box-shadow: 0 1px 0 var(--border);
+}
+.topbar-left { flex: 1; min-width: 140px; }
+.topbar-title {
+  font-size: 20px; font-weight: 800; color: var(--text);
+  letter-spacing: -0.4px;
+}
+.topbar-subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-weight: 500; }
+
+.date-range { display: flex; align-items: center; gap: 6px; }
+.date-input {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  padding: 7px 11px; font-size: 12.5px; font-family: inherit; cursor: pointer;
+  font-weight: 500;
+}
+.date-input:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  border: none; font-family: inherit; transition: all 0.18s;
+  white-space: nowrap; letter-spacing: 0.1px;
+}
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 1px 3px rgba(26,86,219,0.3); }
+.btn-primary:hover { background: #1649c0; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(26,86,219,0.35); }
+.btn-ghost {
+  background: var(--surface2); border: 1.5px solid var(--border);
+  color: var(--text-muted);
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); background: var(--surface3); }
+.btn-sync {
+  background: #027a48;
+  color: #fff; box-shadow: 0 2px 8px rgba(2,122,72,0.3);
+  letter-spacing: 0.2px;
+}
+.btn-sync:hover { background: #015c37; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(2,122,72,0.35); }
+.btn-sync.syncing { opacity: 0.7; pointer-events: none; }
+.btn-sync.syncing .sync-icon { animation: spin 1s linear infinite; }
+
+.btn-download {
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--text-muted); padding: 7px 13px; font-size: 12.5px; font-weight: 600;
+}
+.btn-download:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* ═══════════════════════════════════════
+   STAT CARDS — INBOX.IQ bold style
+═══════════════════════════════════════ */
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 16px; margin-bottom: 22px;
+}
+.stat-card {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 22px 24px 18px;
+  position: relative; overflow: hidden; transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+  box-shadow: var(--shadow);
+}
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+/* Bold top accent line */
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+}
+.stat-card.total::before { background: linear-gradient(90deg, #1a56db, #4f46e5); }
+.stat-card.positive::before { background: linear-gradient(90deg, #027a48, #10b981); }
+.stat-card.negative::before { background: linear-gradient(90deg, #b42318, #ef4444); }
+.stat-card.neutral::before { background: linear-gradient(90deg, #b45309, #f59e0b); }
+
+.stat-label {
+  font-size: 11px; color: var(--text-dim); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.1px; margin-bottom: 10px;
+}
+.stat-value {
+  font-size: 46px; line-height: 1; margin-bottom: 6px;
+  font-weight: 800; letter-spacing: -2px;
+}
+.stat-card.total .stat-value { color: #1a56db; }
+.stat-card.positive .stat-value { color: #027a48; }
+.stat-card.negative .stat-value { color: #b42318; }
+.stat-card.neutral .stat-value { color: #b45309; }
+
+.stat-sub { font-size: 12.5px; color: var(--text-muted); font-weight: 500; }
+.stat-change {
+  position: absolute; top: 18px; right: 16px;
+  font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 20px;
+  letter-spacing: 0.2px;
+}
+.stat-card.positive .stat-change { color: var(--positive); background: var(--positive-bg); border: 1.5px solid var(--positive-border); }
+.stat-card.negative .stat-change { color: var(--negative); background: var(--negative-bg); border: 1.5px solid var(--negative-border); }
+.stat-card.neutral .stat-change { color: var(--neutral); background: var(--neutral-bg); border: 1.5px solid var(--neutral-border); }
+
+/* ═══════════════════════════════════════
+   PANELS
+═══════════════════════════════════════ */
+.panel {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px;
+  box-shadow: var(--shadow);
+}
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--surface3);
+}
+.panel-title {
+  font-size: 14px; font-weight: 800; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.2px;
+}
+.panel-sub {
+  font-size: 11.5px; color: var(--text-dim); font-weight: 500; margin-top: 1px;
+}
+.panel-title .icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; background: var(--accent-light);
+}
+
+/* ═══════════════════════════════════════
+   CHARTS GRID
+═══════════════════════════════════════ */
+.charts-grid {
+  display: grid; grid-template-columns: 2fr 1fr;
+  gap: 16px; margin-bottom: 22px;
+}
+.chart-canvas { position: relative; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+
+/* ═══════════════════════════════════════
+   BREAKDOWN
+═══════════════════════════════════════ */
+.breakdown-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-avatar {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.breakdown-info { flex: 1; min-width: 0; }
+.breakdown-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.breakdown-email { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+.breakdown-bars { flex: 2; }
+.sentiment-bar-wrap { height: 7px; background: var(--surface3); border-radius: 4px; overflow: hidden; margin-bottom: 3px; }
+.sentiment-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.sentiment-bar.pos { background: #027a48; }
+.sentiment-bar.neg { background: #b42318; }
+.sentiment-bar.neu { background: #b45309; }
+
+.score-badge {
+  display: inline-flex; align-items: center;
+  font-size: 11.5px; font-weight: 700; padding: 3px 10px;
+  border-radius: 20px; background: var(--surface2); color: var(--text-muted);
+  border: 1.5px solid var(--border);
+}
+.score-badge.pos { color: var(--positive); background: var(--positive-bg); border-color: var(--positive-border); }
+.score-badge.neg { color: var(--negative); background: var(--negative-bg); border-color: var(--negative-border); }
+
+/* ═══════════════════════════════════════
+   RANK LIST
+═══════════════════════════════════════ */
+.rank-list { display: flex; flex-direction: column; gap: 5px; }
+.rank-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: var(--radius-sm);
+  background: var(--surface2); transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.rank-item:hover { background: var(--accent-light); border-color: #c7d7f9; }
+.rank-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #1a56db; color: #fff;
+  font-size: 10.5px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.rank-text { flex: 1; min-width: 0; font-size: 13px; color: var(--text); font-weight: 600; }
+.rank-text small { display: block; font-size: 11px; color: var(--text-dim); font-weight: 400; margin-top: 2px; }
+.rank-count {
+  font-size: 14px; font-weight: 800; color: #1a56db;
+  background: var(--accent-light); padding: 3px 10px;
+  border-radius: 12px; flex-shrink: 0;
+  border: 1px solid #c7d7f9;
+}
+
+.sent-mini { display: flex; gap: 2px; height: 4px; border-radius: 2px; overflow: hidden; margin-top: 5px; }
+.sent-mini span { display: block; }
+
+/* ═══════════════════════════════════════
+   DOWNLOAD BAR
+═══════════════════════════════════════ */
+.download-bar {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px;
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 22px; box-shadow: var(--shadow);
+  flex-wrap: wrap;
+}
+.download-bar-label {
+  font-size: 14px; font-weight: 800; color: var(--text);
+  display: flex; align-items: center; gap: 7px;
+}
+.download-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+
+/* ═══════════════════════════════════════
+   GOOGLE DRIVE PANEL
+═══════════════════════════════════════ */
+.gdrive-panel {
+  background: linear-gradient(135deg, #eff4ff 0%, #ecfdf3 100%);
+  border: 1.5px solid #c7d7f9; border-radius: var(--radius);
+  padding: 18px 22px; margin-bottom: 22px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.gdrive-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: #fff; border: 1.5px solid #c7d7f9;
+  display: flex; align-items: center; justify-content: center; font-size: 22px;
+  box-shadow: 0 2px 6px rgba(26,86,219,0.1);
+}
+.gdrive-info { flex: 1; min-width: 200px; }
+.gdrive-info h4 { font-size: 14px; font-weight: 800; color: var(--text); }
+.gdrive-info p { font-size: 12.5px; color: var(--text-muted); margin-top: 3px; }
+.gdrive-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ═══════════════════════════════════════
+   INBOX
+═══════════════════════════════════════ */
+.inbox-controls {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;
+}
+.search-box {
+  flex: 1; min-width: 200px; display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 9px 16px;
+  box-shadow: var(--shadow);
+}
+.search-box:focus-within { border-color: var(--accent); }
+.search-box input {
+  background: none; border: none; color: var(--text); font-size: 13.5px;
+  font-family: inherit; flex: 1; outline: none; font-weight: 500;
+}
+.search-box input::placeholder { color: var(--text-dim); }
+.filter-pill {
+  padding: 7px 16px; border-radius: 20px; font-size: 12.5px; font-weight: 700;
+  cursor: pointer; border: 1.5px solid var(--border); background: var(--surface);
+  color: var(--text-muted); transition: all 0.12s; font-family: inherit;
+}
+.filter-pill.all.active { color: #1a56db; background: #eff4ff; border-color: #1a56db; }
+.filter-pill.positive.active { color: var(--positive); background: var(--positive-bg); border-color: var(--positive-border); }
+.filter-pill.negative.active { color: var(--negative); background: var(--negative-bg); border-color: var(--negative-border); }
+.filter-pill.neutral.active { color: var(--neutral); background: var(--neutral-bg); border-color: var(--neutral-border); }
+
+.email-list { display: flex; flex-direction: column; gap: 6px; }
+.email-row {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+  display: flex; gap: 14px; cursor: pointer; transition: all 0.14s;
+  align-items: flex-start; box-shadow: var(--shadow);
+}
+.email-row:hover { border-color: #1a56db; box-shadow: 0 2px 12px rgba(26,86,219,0.1); background: #fafbff; }
+.email-sender-avatar {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: #fff; flex-shrink: 0;
+}
+.email-main { flex: 1; min-width: 0; }
+.email-row-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+.email-from { font-size: 14px; font-weight: 800; color: var(--text); }
+.email-subject-row { font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+.email-subject-row strong { color: var(--text); font-weight: 700; font-size: 13.5px; }
+.email-snippet { font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.email-date { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+.account-tag {
+  font-size: 10.5px; padding: 2px 8px; border-radius: 8px;
+  background: var(--accent-light); color: #1a56db; font-weight: 700;
+  white-space: nowrap; max-width: 100px; overflow: hidden; text-overflow: ellipsis;
+  border: 1px solid #c7d7f9;
+}
+
+/* ═══════════════════════════════════════
+   SENTIMENT BADGES — bolder, bigger
+═══════════════════════════════════════ */
+.sentiment-badge {
+  font-size: 11px; font-weight: 800; padding: 3px 10px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.6px;
+  border: 1.5px solid transparent;
+}
+.sentiment-badge.positive { color: #027a48; background: #ecfdf3; border-color: #6ce9a6; }
+.sentiment-badge.negative { color: #b42318; background: #fff1f0; border-color: #fda29b; }
+.sentiment-badge.neutral  { color: #b45309; background: #fffbeb; border-color: #fcd34d; }
+
+.pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; padding-top: 16px; border-top: 1.5px solid var(--border); }
+.page-btn {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text-muted); cursor: pointer;
+  font-size: 13px; font-weight: 700; font-family: inherit; transition: all 0.12s;
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.page-btn:disabled { opacity: 0.3; pointer-events: none; }
+
+/* ═══════════════════════════════════════
+   DETAIL PANEL
+═══════════════════════════════════════ */
+.detail-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 490px;
+  background: var(--surface); border-left: 1.5px solid var(--border);
+  z-index: 100; display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: -8px 0 48px rgba(0,0,0,0.1);
+}
+.detail-panel.open { transform: translateX(0); }
+.detail-header {
+  padding: 16px 20px; border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface2);
+}
+.detail-close {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--surface); border: 1.5px solid var(--border);
+  color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 13px;
+  transition: all 0.15s;
+}
+.detail-close:hover { color: var(--text); background: var(--surface3); border-color: var(--border2); }
+.detail-subject { font-size: 15px; font-weight: 800; color: var(--text); flex: 1; line-height: 1.4; }
+.detail-meta { padding: 14px 20px; border-bottom: 1.5px solid var(--border); }
+.meta-row { display: flex; gap: 12px; margin-bottom: 6px; font-size: 13px; }
+.meta-label { color: var(--text-dim); min-width: 72px; font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.meta-value { color: var(--text-muted); flex: 1; font-weight: 500; }
+.sentiment-detail { padding: 14px 20px; border-bottom: 1.5px solid var(--border); background: var(--surface2); }
+.sentiment-bars-detail { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.sbar-row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.sbar-label { width: 64px; color: var(--text-muted); font-weight: 700; font-size: 12px; }
+.sbar-track { flex: 1; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+.sbar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.sbar-fill.pos { background: #027a48; }
+.sbar-fill.neg { background: #b42318; }
+.sbar-fill.neu { background: #b45309; }
+.sbar-val { width: 36px; text-align: right; color: var(--text); font-weight: 800; font-size: 13px; }
+.detail-body {
+  flex: 1; overflow-y: auto; padding: 16px 20px;
+  font-size: 13.5px; line-height: 1.8; color: var(--text-muted);
+  white-space: pre-wrap; word-break: break-word;
+}
+.detail-body::-webkit-scrollbar { width: 3px; }
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.2); backdrop-filter: blur(6px);
+  z-index: 200; display: none; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 28px; width: 460px; max-width: 95vw;
+  box-shadow: var(--shadow-lg);
+}
+.modal h2 { font-size: 19px; font-weight: 800; margin-bottom: 5px; letter-spacing: -0.3px; }
+.modal-subtitle { font-size: 13.5px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.6; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 11px; font-weight: 800; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
+.form-input {
+  width: 100%; background: var(--surface2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  padding: 10px 14px; font-size: 14px; font-family: inherit; transition: border-color 0.15s;
+  font-weight: 500;
+}
+.form-input:focus { outline: none; border-color: var(--accent); background: #fff; }
+.form-hint { font-size: 11.5px; color: var(--text-dim); margin-top: 5px; line-height: 1.5; }
+.form-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+#exportModal .modal { width: 520px; }
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: #0f172a; border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px; padding: 12px 18px; font-size: 13.5px; color: #fff;
+  z-index: 500; display: flex; align-items: center; gap: 9px;
+  box-shadow: var(--shadow-lg); transform: translateY(100px); opacity: 0;
+  transition: all 0.28s ease; max-width: 380px; font-weight: 600;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(6,214,160,0.4); }
+.toast.error { border-color: rgba(239,68,68,0.4); }
+.toast.info { border-color: rgba(59,130,246,0.4); }
+
+/* ═══════════════════════════════════════
+   LOADING / EMPTY
+═══════════════════════════════════════ */
+.loading-overlay {
+  display: flex; align-items: center; justify-content: center;
+  padding: 50px; color: var(--text-muted); font-size: 14px; gap: 10px; font-weight: 600;
+}
+.spinner {
+  width: 20px; height: 20px; border: 2.5px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.empty-state { text-align: center; padding: 50px 20px; }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 14px; }
+.empty-state h3 { font-size: 18px; font-weight: 800; margin-bottom: 7px; color: var(--text); }
+.empty-state p { font-size: 14px; color: var(--text-muted); max-width: 280px; margin: 0 auto; line-height: 1.6; }
+
+.selected-accounts-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+.sel-tag {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 12px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+}
+
+.sync-progress { font-size: 12px; color: #027a48; font-weight: 700; display: none; align-items: center; gap: 5px; }
+.sync-progress.visible { display: flex; }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .charts-grid { grid-template-columns: 1fr; }
+  .two-col, .three-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .sidebar { width: 200px; min-width: 200px; }
+  .detail-panel { width: 100%; }
+  .content { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h1><div class="logo-icon">📧</div> Email Analytics</h1>
+    <div class="logo-badge">Multi-Account Hub</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Views</div>
+    <div class="nav-item active" onclick="switchView('dashboard', this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchView('inbox', this)">
+      <span class="nav-icon">📥</span> Inbox
+    </div>
+    <div class="nav-item" onclick="switchView('ai', this)">
+      <span class="nav-icon">✨</span> AI Insights
+    </div>
+    <div class="nav-item" onclick="switchView('subjects', this)">
+      <span class="nav-icon">📝</span> Top Subjects
+    </div>
+    <div class="nav-section-label" style="margin-top:6px">Accounts</div>
+  </nav>
+  <div class="accounts-section" id="accountsList">
+    <div class="loading-overlay" style="padding:18px"><div class="spinner"></div></div>
+  </div>
+  <div class="sidebar-footer">
+    <button class="btn-add-account" onclick="openAddModal()">➕ Add Email Account</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topbarTitle">Control Room</div>
+      <div class="topbar-subtitle" id="topbarSubtitle">Email analytics overview</div>
+    </div>
+    <div class="date-range">
+      <input type="date" class="date-input" id="dateFrom" placeholder="From">
+      <span style="color:var(--text-dim);font-size:16px;font-weight:700">→</span>
+      <input type="date" class="date-input" id="dateTo" placeholder="To">
+      <button class="btn btn-ghost" onclick="clearDates()" style="padding:7px 12px;font-size:12.5px">Clear</button>
+      <button class="btn btn-ghost" onclick="applyFilters()" style="padding:7px 12px;font-size:12.5px">Apply</button>
+    </div>
+    <div class="sync-progress" id="syncProgress"><div class="spinner"></div> Syncing...</div>
+    <button class="btn btn-sync" id="syncAllBtn" onclick="syncAll()">
+      <span class="sync-icon">↻</span> Sync All
+    </button>
+  </div>
+
+  <div class="content">
+
+    <!-- ── DASHBOARD VIEW ── -->
+    <div class="view active" id="view-dashboard">
+      <div id="selectedAccountTags" class="selected-accounts-tags"></div>
+
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="stat-label">Total Emails</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-sub">All synced messages</div>
+        </div>
+        <div class="stat-card positive">
+          <div class="stat-label">Positive Replies</div>
+          <div class="stat-value" id="statPositive">—</div>
+          <div class="stat-change" id="statPosPct">—</div>
+          <div class="stat-sub">Interested leads</div>
+        </div>
+        <div class="stat-card negative">
+          <div class="stat-label">Negative Replies</div>
+          <div class="stat-value" id="statNegative">—</div>
+          <div class="stat-change" id="statNegPct">—</div>
+          <div class="stat-sub">Objections / unsubscribes</div>
+        </div>
+        <div class="stat-card neutral">
+          <div class="stat-label">Neutral Replies</div>
+          <div class="stat-value" id="statNeutral">—</div>
+          <div class="stat-change" id="statNeuPct">—</div>
+          <div class="stat-sub">Awaiting engagement</div>
+        </div>
+      </div>
+
+      <!-- Download bar -->
+      <div class="download-bar">
+        <div class="download-bar-label">⬇️ Export Emails</div>
+        <span style="font-size:12px;color:var(--text-dim)">Download by sentiment (date range applies):</span>
+        <div class="download-btns">
+          <button class="btn btn-download" onclick="downloadCSV('all')">📄 All</button>
+          <button class="btn btn-download" style="color:var(--positive);border-color:var(--positive-border)" onclick="downloadCSV('positive')">😊 Positive</button>
+          <button class="btn btn-download" style="color:var(--negative);border-color:var(--negative-border)" onclick="downloadCSV('negative')">😤 Negative</button>
+          <button class="btn btn-download" style="color:var(--neutral);border-color:var(--neutral-border)" onclick="downloadCSV('neutral')">😐 Neutral</button>
+        </div>
+      </div>
+
+      <!-- Google Drive -->
+      <div class="gdrive-panel">
+        <div class="gdrive-icon">📊</div>
+        <div class="gdrive-info">
+          <h4>Export to Google Sheets</h4>
+          <p>Push filtered email data directly to a new or existing Google Sheet — Date, Sender, Domain, Sentiment & more.</p>
+        </div>
+        <div class="gdrive-actions">
+          <button class="btn btn-primary" onclick="openExportModal('new')" style="font-size:12px;padding:8px 14px">+ New Sheet</button>
+          <button class="btn btn-ghost" onclick="openExportModal('append')" style="font-size:12px;padding:8px 14px">↩ Append to Sheet</button>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">📈</div> Email Trend</div>
+          </div>
+          <div class="chart-canvas" style="height:210px"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">🥧</div> Sentiment Split</div>
+          </div>
+          <div class="chart-canvas" style="height:210px;display:flex;align-items:center;justify-content:center">
+            <canvas id="donutChart" style="max-height:210px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">⏰</div> Replies by Hour</div>
+          </div>
+          <div class="chart-canvas" style="height:160px"><canvas id="hourChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">📅</div> Replies by Weekday</div>
+          </div>
+          <div class="chart-canvas" style="height:160px"><canvas id="weekdayChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">📊</div> Per-Account Breakdown</div>
+        </div>
+        <div id="breakdownRows"><div class="loading-overlay"><div class="spinner"></div> Loading...</div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">👤</div> Top Senders</div>
+          </div>
+          <div id="topSendersList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="icon">📮</div> Accounts Overview</div>
+          </div>
+          <div id="accountsOverview"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INBOX VIEW ── -->
+    <div class="view" id="view-inbox">
+      <div class="inbox-controls">
+        <div class="search-box">
+          <span style="color:var(--text-dim)">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search emails, senders, subjects..." oninput="debounceSearch()">
+        </div>
+        <button class="filter-pill all active" onclick="setFilter('', this)">All</button>
+        <button class="filter-pill positive" onclick="setFilter('positive', this)">😊 Positive</button>
+        <button class="filter-pill negative" onclick="setFilter('negative', this)">😤 Negative</button>
+        <button class="filter-pill neutral" onclick="setFilter('neutral', this)">😐 Neutral</button>
+        <button class="btn btn-ghost" style="padding:6px 12px;font-size:12px" onclick="downloadCSV(state.sentimentFilter || 'all')">⬇️ Export</button>
+      </div>
+      <div id="emailListContainer"><div class="loading-overlay"><div class="spinner"></div> Loading emails...</div></div>
+      <div id="paginationContainer"></div>
+    </div>
+
+    <!-- ── AI INSIGHTS VIEW ── -->
+    <div class="view" id="view-ai">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
+        <div style="width:42px;height:42px;background:linear-gradient(135deg,#3b5cf6,#7c3aed);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">✨</div>
+        <div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">AI Intelligence Hub</div>
+          <div style="font-size:13px;color:var(--text-muted)">Smart suggestions derived from your actual email replies &amp; lead activity</div>
+        </div>
+        <button class="btn btn-ghost" style="margin-left:auto;padding:7px 14px;font-size:12px" onclick="loadAISuggestions()">🔄 Refresh</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="panel" style="text-align:center;padding:20px 16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px">⏰ Best Hour to Send</div>
+          <div style="font-size:36px;font-weight:800;color:var(--accent);letter-spacing:-1px" id="aiBestHour">—</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:4px" id="aiBestHourSub">Loading...</div>
+        </div>
+        <div class="panel" style="text-align:center;padding:20px 16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px">📅 Best Day to Send</div>
+          <div style="font-size:36px;font-weight:800;color:var(--purple);letter-spacing:-1px" id="aiBestDay">—</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:4px" id="aiBestDaySub">Loading...</div>
+        </div>
+        <div class="panel" style="text-align:center;padding:20px 16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px">📈 Avg Sentiment Score</div>
+          <div style="font-size:36px;font-weight:800;letter-spacing:-1px" id="aiAvgScore">—</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-top:4px" id="aiAvgScoreSub">Loading...</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title"><div class="icon">💡</div> Smart Suggestions</div></div>
+          <div id="aiSuggestionsList" style="padding:4px 0"><div class="loading-overlay" style="padding:30px"><div class="spinner"></div></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title"><div class="icon">🎯</div> Sentiment Improvement Tips</div></div>
+          <div id="aiImprovementTips" style="padding:4px 0"><div class="loading-overlay" style="padding:30px"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">💬</div> Phrases in Positive Replies</div>
+          <div style="font-size:12px;color:var(--text-dim)">Keywords your leads use when interested</div>
+        </div>
+        <div id="aiPositivePhrases" style="padding:12px 20px 16px;display:flex;flex-wrap:wrap;gap:8px"><div class="loading-overlay" style="padding:20px"><div class="spinner"></div></div></div>
+      </div>
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">📊</div> Subject Line Performance</div>
+          <div style="font-size:12px;color:var(--text-dim)">Reply rate % by subject line</div>
+        </div>
+        <div id="aiSubjectPerf" style="padding:4px 0"><div class="loading-overlay" style="padding:30px"><div class="spinner"></div></div></div>
+      </div>
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">⚠️</div> Negative Reply Patterns</div>
+          <div style="font-size:12px;color:var(--text-dim)">Common objections to address in your sequences</div>
+        </div>
+        <div id="aiNegativePatterns" style="padding:12px 20px 16px;display:flex;flex-wrap:wrap;gap:8px"><div class="loading-overlay" style="padding:20px"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── SUBJECTS VIEW ── -->
+    <div class="view" id="view-subjects">
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <div class="panel-title"><div class="icon">📝</div> Most Replied Subject Lines</div>
+        </div>
+        <div id="subjectsList"><div class="loading-overlay"><div class="spinner"></div></div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<!-- EMAIL DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-subject" id="detailSubject">—</div>
+  </div>
+  <div class="detail-meta" id="detailMeta"></div>
+  <div class="sentiment-detail">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:0.8px">SENTIMENT ANALYSIS</span>
+      <span class="sentiment-badge" id="detailSentBadge">neutral</span>
+    </div>
+    <div class="sentiment-bars-detail">
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--positive)">😊 Pos</div>
+        <div class="sbar-track"><div class="sbar-fill pos" id="sbarPos" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarPosVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--negative)">😤 Neg</div>
+        <div class="sbar-track"><div class="sbar-fill neg" id="sbarNeg" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNegVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--neutral)">😐 Neu</div>
+        <div class="sbar-track"><div class="sbar-fill neu" id="sbarNeu" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNeuVal">0%</div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-body" id="detailBody">—</div>
+</div>
+
+<!-- ADD ACCOUNT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>➕ Add Email Account</h2>
+    <div class="modal-subtitle">
+      Connect via IMAP using an <strong style="color:var(--accent)">App Password</strong>.
+      For Gmail: Settings → Security → 2-Step Verification → App Passwords.
+    </div>
+    <div class="form-group">
+      <label class="form-label">Display Name (optional)</label>
+      <input type="text" class="form-input" id="inputName" placeholder="e.g. Work Gmail">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address *</label>
+      <input type="email" class="form-input" id="inputEmail" placeholder="you@gmail.com" oninput="autoDetectServer()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">App Password *</label>
+      <input type="password" class="form-input" id="inputPassword" placeholder="xxxx xxxx xxxx xxxx">
+      <div class="form-hint">Use an App Password, not your regular password.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">IMAP Server</label>
+      <input type="text" class="form-input" id="inputServer" placeholder="Auto-detected">
+      <div class="form-hint" id="serverHint">Will auto-detect based on email domain.</div>
+    </div>
+    <div id="addError" style="display:none;color:var(--negative);font-size:13px;padding:8px 12px;background:var(--negative-bg);border:1px solid var(--negative-border);border-radius:8px;margin-top:8px;"></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" id="addBtn" onclick="submitAddAccount()" style="flex:1">🔌 Connect Account</button>
+      <button class="btn btn-ghost" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal" style="width:510px">
+    <h2 id="exportModalTitle">📊 Export to Google Sheets</h2>
+    <div class="modal-subtitle" id="exportModalSubtitle">Create a new Google Sheet with your filtered email data.</div>
+
+    <div id="exportModeNew">
+      <div class="form-group">
+        <label class="form-label">Sheet Name</label>
+        <input type="text" class="form-input" id="exportSheetName" placeholder="Email Analytics 2025">
+      </div>
+    </div>
+    <div id="exportModeAppend" style="display:none">
+      <div class="form-group">
+        <label class="form-label">Spreadsheet ID</label>
+        <input type="text" class="form-input" id="exportSpreadsheetId" placeholder="Paste your Google Sheet ID here">
+        <div class="form-hint">From the URL: docs.google.com/spreadsheets/d/<strong>ID</strong>/edit</div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px">FILTER (applies current date range & accounts)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer"><input type="radio" name="exportSentiment" value="" checked> All</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer"><input type="radio" name="exportSentiment" value="positive"> 😊 Positive</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer"><input type="radio" name="exportSentiment" value="negative"> 😤 Negative</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12.5px;cursor:pointer"><input type="radio" name="exportSentiment" value="neutral"> 😐 Neutral</label>
+      </div>
+    </div>
+
+    <div id="exportStatus" style="display:none;font-size:13px;padding:10px 12px;border-radius:8px;margin-bottom:10px"></div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" id="exportBtn" onclick="doExport()" style="flex:1">Export to Google Sheets</button>
+      <button class="btn btn-ghost" onclick="closeExportModal()">Cancel</button>
+    </div>
+    <div style="margin-top:12px;font-size:11.5px;color:var(--text-dim);line-height:1.5">
+      ⚙️ Requires <code>google-auth google-auth-oauthlib google-api-python-client</code> and <code>google_credentials.json</code> placed next to app.py.
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────── */
+const AVATAR_COLORS = ['#3b5cf6','#7c3aed','#059669','#dc2626','#d97706','#0891b2','#db2777','#65a30d'];
+const colorCache = {};
+function avatarColor(key) {
+  if (!colorCache[key]) colorCache[key] = AVATAR_COLORS[Object.keys(colorCache).length % AVATAR_COLORS.length];
+  return colorCache[key];
+}
+function initials(name) {
+  if (!name) return '?';
+  const p = name.trim().split(/\s+/);
+  return (p[0][0] + (p[1]?.[0] || '')).toUpperCase();
+}
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function sentimentEmoji(s) { return {positive:'😊',negative:'😤',neutral:'😐'}[s]||'😐'; }
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  const toastIcons = {success:'✅',error:'❌',info:'ℹ️'};
+  t.innerHTML = `<span>${toastIcons[type]||'ℹ️'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+/* ─────────────────────────────────────────
+   STATE
+───────────────────────────────────────── */
+let state = {
+  accounts: [], selectedAccounts: [],
+  currentView: 'dashboard',
+  sentimentFilter: '', searchQuery: '', currentPage: 1,
+  dateFrom: '', dateTo: '',
+  trendChart: null, donutChart: null, hourChart: null, weekdayChart: null,
+  searchTimer: null,
+  statsData: null,
+  exportMode: 'new',
+};
+
+/* ─────────────────────────────────────────
+   INIT
+───────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => { loadAccounts(); });
+
+/* ─────────────────────────────────────────
+   ACCOUNTS
+───────────────────────────────────────── */
+async function loadAccounts() {
+  const res = await fetch('/api/accounts');
+  state.accounts = await res.json();
+  renderAccounts();
+  if (state.accounts.length > 0) {
+    state.selectedAccounts = state.accounts.map(a => a.id);
+    renderAccountSelections();
+    loadStats();
+    if (state.currentView === 'inbox') loadEmails();
+  }
+}
+
+function renderAccounts() {
+  const el = document.getElementById('accountsList');
+  if (!state.accounts.length) {
+    el.innerHTML = `<div style="padding:18px;text-align:center;color:var(--text-dim);font-size:12px;line-height:1.7">No accounts yet.<br>Add your first email account below.</div>`;
+    return;
+  }
+  el.innerHTML = state.accounts.map(a => {
+    const color = avatarColor(a.email);
+    const isSelected = state.selectedAccounts.includes(a.id);
+    const lastSync = a.last_synced ? new Date(a.last_synced).toLocaleDateString() : 'Never';
+    return `
+    <div class="account-item ${isSelected?'selected':''}" onclick="toggleAccount(${a.id})" id="acc-${a.id}">
+      <div class="account-avatar" style="background:${color}">${initials(a.display_name||a.email)}</div>
+      <div class="account-info">
+        <div class="account-email-text">${a.display_name||a.email.split('@')[0]}</div>
+        <div class="account-meta">${a.total_emails||0} emails · ${lastSync}</div>
+      </div>
+      <div class="account-check">${isSelected?'✓':''}</div>
+      <button class="account-delete-btn" onclick="event.stopPropagation();deleteAccount(${a.id})" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderAccountSelections() {
+  const el = document.getElementById('selectedAccountTags'); if (!el) return;
+  el.innerHTML = state.selectedAccounts.map(id => {
+    const a = state.accounts.find(x => x.id === id); if (!a) return '';
+    const color = avatarColor(a.email);
+    return `<div class="sel-tag" style="background:${color}18;color:${color};border:1px solid ${color}33">
+      <span>${initials(a.display_name||a.email)}</span>${a.display_name||a.email.split('@')[0]}
+    </div>`;
+  }).join('');
+}
+
+function toggleAccount(id) {
+  if (state.selectedAccounts.includes(id)) {
+    if (state.selectedAccounts.length === 1) return;
+    state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  } else { state.selectedAccounts.push(id); }
+  renderAccounts(); renderAccountSelections();
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+  if (state.currentView === 'subjects') renderExtendedViews();
+  if (state.currentView === 'ai') loadAISuggestions();
+}
+
+async function deleteAccount(id) {
+  if (!confirm('Remove this account? All synced emails will be deleted.')) return;
+  await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+  state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  showToast('Account removed', 'info');
+  loadAccounts();
+}
+
+/* ─────────────────────────────────────────
+   MODAL – ADD ACCOUNT
+───────────────────────────────────────── */
+function openAddModal() {
+  document.getElementById('addModal').classList.add('open');
+  ['inputEmail','inputPassword','inputName','inputServer'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('addError').style.display='none';
+  document.getElementById('serverHint').textContent='Will auto-detect based on email domain.';
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+const IMAP_MAP = {
+  'gmail.com':'imap.gmail.com','yahoo.com':'imap.mail.yahoo.com',
+  'outlook.com':'imap-mail.outlook.com','hotmail.com':'imap-mail.outlook.com',
+  'live.com':'imap-mail.outlook.com','icloud.com':'imap.mail.me.com',
+  'zoho.com':'imap.zoho.com','aol.com':'imap.aol.com',
+};
+function autoDetectServer() {
+  const email = document.getElementById('inputEmail').value;
+  const domain = email.split('@')[1]?.toLowerCase();
+  const server = IMAP_MAP[domain] || (domain ? `imap.${domain}` : '');
+  document.getElementById('inputServer').value = server;
+  document.getElementById('serverHint').textContent = server ? `Detected: ${server}` : 'Will auto-detect based on email domain.';
+}
+
+async function submitAddAccount() {
+  const btn = document.getElementById('addBtn');
+  const errEl = document.getElementById('addError');
+  const email = document.getElementById('inputEmail').value.trim();
+  const pass = document.getElementById('inputPassword').value.trim();
+  const name = document.getElementById('inputName').value.trim();
+  const server = document.getElementById('inputServer').value.trim();
+  if (!email || !pass) { errEl.style.display='block'; errEl.textContent='Email and app password are required.'; return; }
+  btn.textContent = '🔌 Connecting...'; btn.disabled = true; errEl.style.display = 'none';
+  try {
+    const res = await fetch('/api/accounts', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, app_password: pass, display_name: name, imap_server: server })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.style.display='block'; errEl.textContent=data.error||'Failed to connect.'; }
+    else { closeAddModal(); showToast('Account connected! Starting sync...','success'); await loadAccounts(); syncAccount(data.account.id); }
+  } catch(e) { errEl.style.display='block'; errEl.textContent='Connection failed. Check server address.'; }
+  btn.textContent = '🔌 Connect Account'; btn.disabled = false;
+}
+
+/* ─────────────────────────────────────────
+   SYNC
+───────────────────────────────────────── */
+async function syncAccount(id) {
+  const res = await fetch(`/api/sync/${id}`,{method:'POST'});
+  const data = await res.json();
+  if (data.success) { showToast('🔄 '+data.message,'info'); pollSyncStatus(id); }
+}
+
+async function syncAll() {
+  const btn = document.getElementById('syncAllBtn');
+  const prog = document.getElementById('syncProgress');
+  btn.classList.add('syncing'); prog.classList.add('visible');
+  await fetch('/api/sync/all',{method:'POST'});
+  showToast('Syncing all accounts in background...','info');
+  setTimeout(()=>{ btn.classList.remove('syncing'); prog.classList.remove('visible'); loadAccounts(); loadStats(); if(state.currentView==='inbox') loadEmails(); }, 8000);
+}
+
+function pollSyncStatus(id) {
+  let polls = 0;
+  const iv = setInterval(async () => {
+    if (++polls > 20) { clearInterval(iv); return; }
+    const data = await (await fetch(`/api/sync/status/${id}`)).json();
+    const a = state.accounts.find(x => x.id === id);
+    if (a) { a.total_emails = data.total_emails; a.last_synced = data.last_synced; }
+    renderAccounts();
+    if (polls > 5) { clearInterval(iv); loadStats(); if(state.currentView==='inbox') loadEmails(); showToast(`Sync complete! ${data.total_emails} emails loaded.`,'success'); }
+  }, 3000);
+}
+
+/* ─────────────────────────────────────────
+   VIEW SWITCHING
+───────────────────────────────────────── */
+function switchView(view, navEl) {
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  navEl.classList.add('active');
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  state.currentView = view;
+  const titles = {
+    dashboard:['Control Room','Email analytics overview'],
+    inbox:['Inbox','Browse and filter emails'],
+    ai:['AI Intelligence Hub','Smart suggestions from your email data'],
+    subjects:['Top Subjects','Most replied subject lines'],
+  };
+  document.getElementById('topbarTitle').textContent = (titles[view]||['',''])[0];
+  document.getElementById('topbarSubtitle').textContent = (titles[view]||['',''])[1];
+  if (view === 'inbox') loadEmails();
+  if (view === 'subjects') renderExtendedViews();
+  if (view === 'ai') loadAISuggestions();
+  closeDetail();
+}
+
+/* ─────────────────────────────────────────
+   FILTERS
+───────────────────────────────────────── */
+function applyFilters() {
+  state.dateFrom = document.getElementById('dateFrom').value;
+  state.dateTo = document.getElementById('dateTo').value;
+  state.currentPage = 1;
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+  if (state.currentView === 'subjects') renderExtendedViews();
+  if (state.currentView === 'ai') loadAISuggestions();
+}
+function clearDates() {
+  ['dateFrom','dateTo'].forEach(id => document.getElementById(id).value='');
+  state.dateFrom=''; state.dateTo='';
+  loadStats();
+  if (state.currentView === 'inbox') loadEmails();
+}
+function setFilter(sentiment, btn) {
+  state.sentimentFilter = sentiment; state.currentPage = 1;
+  document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active'); loadEmails();
+}
+function debounceSearch() {
+  clearTimeout(state.searchTimer);
+  state.searchTimer = setTimeout(()=>{ state.searchQuery=document.getElementById('searchInput').value; state.currentPage=1; loadEmails(); }, 400);
+}
+function buildParams() {
+  const p = new URLSearchParams();
+  state.selectedAccounts.forEach(id => p.append('accounts[]', id));
+  if (state.dateFrom) p.append('date_from', state.dateFrom);
+  if (state.dateTo) p.append('date_to', state.dateTo);
+  return p.toString();
+}
+
+/* ─────────────────────────────────────────
+   STATS
+───────────────────────────────────────── */
+async function loadStats() {
+  if (!state.accounts.length) { renderEmptyDashboard(); return; }
+  const res = await fetch('/api/stats?' + buildParams());
+  const data = await res.json();
+  state.statsData = data;
+  renderStats(data);
+}
+
+function renderStats(data) {
+  const total = data.total || 0;
+  document.getElementById('statTotal').textContent = total.toLocaleString();
+  document.getElementById('statPositive').textContent = data.positive.toLocaleString();
+  document.getElementById('statNegative').textContent = data.negative.toLocaleString();
+  document.getElementById('statNeutral').textContent = data.neutral.toLocaleString();
+  if (total > 0) {
+    document.getElementById('statPosPct').textContent = Math.round(data.positive/total*100) + '%';
+    document.getElementById('statNegPct').textContent = Math.round(data.negative/total*100) + '%';
+    document.getElementById('statNeuPct').textContent = Math.round(data.neutral/total*100) + '%';
+  }
+  renderTrendChart(data.trend);
+  renderDonutChart(data.positive, data.negative, data.neutral);
+  renderHourChart(data.hourly || []);
+  renderWeekdayChart(data.weekday || []);
+  renderBreakdown(data.by_account);
+  renderTopSenders(data.top_senders);
+  renderAccountsOverview();
+  // domains view removed
+  if (state.currentView === 'subjects') renderSubjects(data.top_subjects || []);
+}
+
+function renderEmptyDashboard() {
+  ['statTotal','statPositive','statNegative','statNeutral'].forEach(id => document.getElementById(id).textContent='0');
+}
+
+function renderExtendedViews() {
+  if (state.statsData) {
+    // domains view removed
+    if (state.currentView === 'subjects') renderSubjects(state.statsData.top_subjects || []);
+  } else { loadStats(); }
+}
+
+/* ─────────────────────────────────────────
+   CHARTS
+───────────────────────────────────────── */
+const CHART_DEFAULTS = {
+  plugins: { legend: { labels: { color: '#374151', boxWidth: 12, font: { size: 12, family: "'Plus Jakarta Sans'", weight: '700' } } } },
+  scales: {
+    x: { ticks: { color: '#6b7280', font: { size: 11, weight: '600' } }, grid: { color: '#f0f2f7' } },
+    y: { ticks: { color: '#6b7280', font: { size: 11, weight: '600' } }, grid: { color: '#f0f2f7' }, beginAtZero: true }
+  }
+};
+
+function renderTrendChart(trend) {
+  const ctx = document.getElementById('trendChart');
+  if (state.trendChart) state.trendChart.destroy();
+  const labels = trend.map(t => new Date(t.day).toLocaleDateString('en',{month:'short',day:'numeric'}));
+  state.trendChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [
+      { label:'Positive', data:trend.map(t=>t.positive), borderColor:'#027a48', backgroundColor:'rgba(2,122,72,0.08)', fill:true, tension:0.4, borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#027a48' },
+      { label:'Negative', data:trend.map(t=>t.negative), borderColor:'#b42318', backgroundColor:'rgba(180,35,24,0.06)', fill:true, tension:0.4, borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#b42318' },
+      { label:'Neutral',  data:trend.map(t=>t.neutral),  borderColor:'#b45309', backgroundColor:'rgba(180,83,9,0.05)',  fill:true, tension:0.4, borderWidth:2.5, pointRadius:3, pointBackgroundColor:'#b45309' },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false, ...CHART_DEFAULTS }
+  });
+}
+
+function renderDonutChart(pos, neg, neu) {
+  const ctx = document.getElementById('donutChart');
+  if (state.donutChart) state.donutChart.destroy();
+  state.donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels:['Positive','Negative','Neutral'], datasets:[{
+      data:[pos,neg,neu], backgroundColor:['#027a48','#b42318','#b45309'],
+      borderColor:'#ffffff', borderWidth:3, hoverOffset:6,
+    }]},
+    options: { responsive:true, maintainAspectRatio:false, cutout:'68%',
+      plugins: { legend: { position:'right', labels:{ color:'#374151', boxWidth:12, font:{size:12,weight:'700'}, padding:14 } } }
+    }
+  });
+}
+
+function renderHourChart(hourly) {
+  const ctx = document.getElementById('hourChart');
+  if (state.hourChart) state.hourChart.destroy();
+  const allHours = Array.from({length:24},(_,i)=>i);
+  const map = {}; hourly.forEach(h => map[h.hour]=h.cnt);
+  const labels = allHours.map(h => h===0?'12am':h<12?`${h}am`:h===12?'12pm':`${h-12}pm`);
+  state.hourChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets:[{ label:'Replies', data:allHours.map(h=>map[h]||0), backgroundColor:'rgba(26,86,219,0.15)', borderColor:'#1a56db', borderWidth:2, borderRadius:4 }] },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ display:false } },
+      scales: { x:{ ticks:{color:'#6b7280',font:{size:9,weight:'600'},maxRotation:0}, grid:{display:false} }, y:{ ticks:{color:'#6b7280',font:{size:11,weight:'600'}}, grid:{color:'#f0f2f7'}, beginAtZero:true } }
+    }
+  });
+}
+
+function renderWeekdayChart(weekday) {
+  const ctx = document.getElementById('weekdayChart');
+  if (state.weekdayChart) state.weekdayChart.destroy();
+  const allDays = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const map = {}; weekday.forEach(w => map[w.day_name]=w.cnt);
+  state.weekdayChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels:allDays, datasets:[{ label:'Replies', data:allDays.map(d=>map[d]||0), backgroundColor:allDays.map(d=>['Sat','Sun'].includes(d)?'rgba(217,119,6,0.18)':'rgba(59,92,246,0.18)'), borderColor:allDays.map(d=>['Sat','Sun'].includes(d)?'#d97706':'#3b5cf6'), borderWidth:1.5, borderRadius:4 }] },
+    options: { responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{ ticks:{color:'#9ca3af',font:{size:10}}, grid:{display:false} }, y:{ ticks:{color:'#9ca3af',font:{size:10}}, grid:{color:'#f0f2f8'}, beginAtZero:true } }
+    }
+  });
+}
+
+/* ─────────────────────────────────────────
+   BREAKDOWN / SENDERS
+───────────────────────────────────────── */
+function renderBreakdown(byAccount) {
+  const el = document.getElementById('breakdownRows');
+  if (!byAccount?.length) { el.innerHTML=`<div class="empty-state" style="padding:24px"><div class="empty-icon">📊</div><p>No data yet. Sync your accounts first.</p></div>`; return; }
+  el.innerHTML = byAccount.map(a => {
+    const total = a.total||1;
+    const pp=Math.round(a.positive/total*100), np=Math.round(a.negative/total*100), nup=100-pp-np;
+    const color = avatarColor(a.email);
+    const scoreNum = a.avg_score||0;
+    const scoreClass = scoreNum>0.05?'pos':scoreNum<-0.05?'neg':'';
+    return `<div class="breakdown-row">
+      <div class="breakdown-avatar" style="background:${color}">${initials(a.display_name||a.email)}</div>
+      <div class="breakdown-info">
+        <div class="breakdown-name">${a.display_name||a.email.split('@')[0]}</div>
+        <div class="breakdown-email">${a.email} · ${a.total} emails</div>
+      </div>
+      <div class="breakdown-bars" style="flex:2">
+        <div style="display:flex;gap:2px;height:6px;border-radius:3px;overflow:hidden;margin-bottom:4px">
+          <div style="flex:${pp||1};background:var(--positive)"></div>
+          <div style="flex:${np||1};background:var(--negative)"></div>
+          <div style="flex:${nup||1};background:var(--neutral)"></div>
+        </div>
+        <div style="display:flex;gap:10px;font-size:10.5px">
+          <span style="color:var(--positive);font-weight:600">+${a.positive}</span>
+          <span style="color:var(--negative);font-weight:600">-${a.negative}</span>
+          <span style="color:var(--neutral);font-weight:600">~${a.neutral}</span>
+        </div>
+      </div>
+      <div class="score-badge ${scoreClass}">${scoreNum>=0?'+':''}${scoreNum.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTopSenders(senders) {
+  const el = document.getElementById('topSendersList');
+  if (!senders?.length) { el.innerHTML=`<div style="text-align:center;padding:18px;color:var(--text-dim);font-size:13px">No data yet</div>`; return; }
+  const max = senders[0]?.cnt||1;
+  el.innerHTML = senders.map((s,i)=>{
+    const color = avatarColor(s.sender_email||i);
+    const pct = Math.round(s.cnt/max*100);
+    const name = s.sender_email?.split('@')[0]||'?';
+    return `<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div style="width:26px;height:26px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${initials(name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.sender_email||'(unknown)'}</div>
+        <div style="height:4px;background:var(--surface2);border-radius:2px;margin-top:4px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:2px;transition:width 0.5s ease"></div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--text-muted)">${s.cnt}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAccountsOverview() {
+  const el = document.getElementById('accountsOverview');
+  if (!state.accounts.length) { el.innerHTML=`<div style="text-align:center;padding:18px;color:var(--text-dim);font-size:13px">No accounts added</div>`; return; }
+  el.innerHTML = state.accounts.map(a => {
+    const color = avatarColor(a.email);
+    const lastSync = a.last_synced?new Date(a.last_synced).toLocaleString():'Never';
+    return `<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div class="breakdown-avatar" style="background:${color};width:28px;height:28px;font-size:10px">${initials(a.display_name||a.email)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.email}</div>
+        <div style="font-size:10.5px;color:var(--text-dim)">Last sync: ${lastSync}</div>
+      </div>
+      <button class="btn btn-ghost" style="padding:4px 9px;font-size:11px" onclick="syncAccount(${a.id})">🔄</button>
+    </div>`;
+  }).join('');
+}
+
+/* ─────────────────────────────────────────
+   DOMAINS & SUBJECTS
+───────────────────────────────────────── */
+function renderDomains(domains) {
+  const el = document.getElementById('domainsList');
+  if (!domains?.length) { el.innerHTML=`<div class="empty-state" style="padding:30px"><div class="empty-icon">🌐</div><p>No domain data yet. Sync your accounts first.</p></div>`; return; }
+  const max = domains[0]?.total||1;
+  el.innerHTML = `<div class="rank-list">` + domains.map((d,i)=>{
+    const total = d.total||1;
+    const pp = Math.round(d.positive/total*100), np=Math.round(d.negative/total*100), nup=100-pp-np;
+    const pct = Math.round(d.total/max*100);
+    return `<div class="rank-item">
+      <div class="rank-num">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${escHtml(d.sender_domain)}</div>
+        <div style="display:flex;gap:8px;font-size:10.5px;margin-top:2px">
+          <span style="color:var(--positive);font-weight:600">+${d.positive}</span>
+          <span style="color:var(--negative);font-weight:600">-${d.negative}</span>
+          <span style="color:var(--neutral);font-weight:600">~${d.neutral}</span>
+          <span style="color:var(--text-dim)">${d.unique_senders} sender${d.unique_senders!==1?'s':''}</span>
+        </div>
+        <div style="height:4px;background:var(--surface3);border-radius:2px;margin-top:5px;overflow:hidden">
+          <div style="display:flex;height:100%">
+            <div style="flex:${pp||1};background:var(--positive)"></div>
+            <div style="flex:${np||1};background:var(--negative)"></div>
+            <div style="flex:${nup||1};background:var(--neutral)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="rank-count">${d.total}</div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+function renderSubjects(subjects) {
+  const el = document.getElementById('subjectsList');
+  if (!subjects?.length) { el.innerHTML=`<div class="empty-state" style="padding:30px"><div class="empty-icon">📝</div><p>No subject data yet. Sync your accounts first.</p></div>`; return; }
+  el.innerHTML = `<div class="rank-list">` + subjects.map((s,i)=>{
+    const total = s.cnt||1;
+    const pp=Math.round(s.positive/total*100), np=Math.round(s.negative/total*100), nup=100-pp-np;
+    return `<div class="rank-item">
+      <div class="rank-num">${i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px">${escHtml(s.subject)}</div>
+        <div style="display:flex;gap:8px;font-size:10.5px;margin-top:3px">
+          <span style="color:var(--positive);font-weight:600">+${s.positive}</span>
+          <span style="color:var(--negative);font-weight:600">-${s.negative}</span>
+          <span style="color:var(--neutral);font-weight:600">~${s.neutral}</span>
+        </div>
+        <div style="height:4px;background:var(--surface3);border-radius:2px;margin-top:5px;overflow:hidden">
+          <div style="display:flex;height:100%">
+            <div style="flex:${pp||1};background:var(--positive)"></div>
+            <div style="flex:${np||1};background:var(--negative)"></div>
+            <div style="flex:${nup||1};background:var(--neutral)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="rank-count">${s.cnt}</div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+/* ─────────────────────────────────────────
+   EMAILS
+───────────────────────────────────────── */
+async function loadEmails() {
+  if (!state.accounts.length) {
+    document.getElementById('emailListContainer').innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><h3>No accounts yet</h3><p>Add an email account to start viewing your inbox.</p></div>`;
+    return;
+  }
+  document.getElementById('emailListContainer').innerHTML=`<div class="loading-overlay"><div class="spinner"></div> Loading emails...</div>`;
+  const params = new URLSearchParams();
+  state.selectedAccounts.forEach(id => params.append('accounts[]',id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+  if (state.sentimentFilter) params.append('sentiment', state.sentimentFilter);
+  if (state.searchQuery) params.append('search', state.searchQuery);
+  params.append('page', state.currentPage);
+  params.append('per_page', 30);
+  params.append('folder', 'INBOX');
+  const data = await (await fetch('/api/emails?'+params)).json();
+  renderEmailList(data.emails, data.total);
+  renderPagination(data.pages, data.page, data.total);
+}
+
+function renderEmailList(emails, total) {
+  const el = document.getElementById('emailListContainer');
+  if (!emails?.length) {
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><h3>No emails found</h3><p>${state.sentimentFilter||state.searchQuery?'Try adjusting your filters.':'Sync your accounts to load emails.'}</p></div>`;
+    return;
+  }
+  el.innerHTML = `<div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;font-weight:500">${total.toLocaleString()} emails</div>
+    <div class="email-list">${emails.map(e=>{
+      const color = avatarColor(e.sender_email||e.sender);
+      const date = new Date(e.date).toLocaleDateString('en',{month:'short',day:'numeric',year:'2-digit'});
+      const time = new Date(e.date).toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
+      const fromName = e.sender?.replace(/<[^>]+>/,'').trim()||e.sender_email||'?';
+      return `<div class="email-row" onclick="openEmail(${e.id})">
+        <div class="email-sender-avatar" style="background:${color}">${initials(fromName)}</div>
+        <div class="email-main">
+          <div class="email-row-top">
+            <div class="email-from">${escHtml(fromName.substring(0,30))}</div>
+            <div class="account-tag">${e.account_name||e.account_email?.split('@')[1]||''}</div>
+          </div>
+          <div class="email-subject-row"><strong>${escHtml(e.subject||'(No Subject)')}</strong></div>
+          <div class="email-snippet">${escHtml(e.snippet||'')}</div>
+        </div>
+        <div class="email-meta">
+          <div class="email-date">${date} ${time}</div>
+          <div class="sentiment-badge ${e.sentiment}">${sentimentEmoji(e.sentiment)} ${e.sentiment}</div>
+          ${e.word_count?`<div style="font-size:10px;color:var(--text-dim)">${e.word_count}w</div>`:''}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+function renderPagination(pages, current, total) {
+  const el = document.getElementById('paginationContainer');
+  if (pages<=1){el.innerHTML='';return;}
+  let btns = `<button class="page-btn" onclick="goPage(${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  const range=[];
+  for(let i=Math.max(1,current-2);i<=Math.min(pages,current+2);i++) range.push(i);
+  if(range[0]>1){btns+=`<button class="page-btn" onclick="goPage(1)">1</button>`;if(range[0]>2)btns+=`<span style="color:var(--text-dim)">…</span>`;}
+  range.forEach(p=>btns+=`<button class="page-btn ${p===current?'active':''}" onclick="goPage(${p})">${p}</button>`);
+  if(range[range.length-1]<pages){if(range[range.length-1]<pages-1)btns+=`<span style="color:var(--text-dim)">…</span>`;btns+=`<button class="page-btn" onclick="goPage(${pages})">${pages}</button>`;}
+  btns+=`<button class="page-btn" onclick="goPage(${current+1})" ${current>=pages?'disabled':''}>›</button>`;
+  el.innerHTML=`<div class="pagination">${btns}<span style="font-size:12px;color:var(--text-dim)">${total.toLocaleString()} total</span></div>`;
+}
+function goPage(p){state.currentPage=p;loadEmails();document.querySelector('.content').scrollTop=0;}
+
+/* ─────────────────────────────────────────
+   EMAIL DETAIL
+───────────────────────────────────────── */
+async function openEmail(id) {
+  const e = await (await fetch(`/api/emails/${id}`)).json();
+  document.getElementById('detailSubject').textContent = e.subject||'(No Subject)';
+  document.getElementById('detailMeta').innerHTML = `
+    <div class="meta-row"><div class="meta-label">From</div><div class="meta-value">${escHtml(e.sender||'—')}</div></div>
+    <div class="meta-row"><div class="meta-label">To</div><div class="meta-value">${escHtml(e.recipient||'—')}</div></div>
+    <div class="meta-row"><div class="meta-label">Date</div><div class="meta-value">${new Date(e.date).toLocaleString()}</div></div>
+    <div class="meta-row"><div class="meta-label">Account</div><div class="meta-value">${e.account_email||'—'}</div></div>
+    ${e.sender_domain?`<div class="meta-row"><div class="meta-label">Domain</div><div class="meta-value">${escHtml(e.sender_domain)}</div></div>`:''}
+    ${e.phone_numbers?`<div class="meta-row"><div class="meta-label">Phone</div><div class="meta-value">${escHtml(e.phone_numbers)}</div></div>`:''}
+    ${e.job_title?`<div class="meta-row"><div class="meta-label">Title</div><div class="meta-value">${escHtml(e.job_title)}</div></div>`:''}
+    ${e.company_name?`<div class="meta-row"><div class="meta-label">Company</div><div class="meta-value">${escHtml(e.company_name)}</div></div>`:''}
+    <div class="meta-row"><div class="meta-label">Words</div><div class="meta-value">${e.word_count||0} words</div></div>`;
+  const badge = document.getElementById('detailSentBadge');
+  badge.textContent = sentimentEmoji(e.sentiment)+' '+(e.sentiment||'neutral');
+  badge.className = 'sentiment-badge '+(e.sentiment||'neutral');
+  const pos=Math.round((e.sentiment_positive||0)*100);
+  const neg=Math.round((e.sentiment_negative||0)*100);
+  const neu=Math.max(0,100-pos-neg);
+  setTimeout(()=>{
+    document.getElementById('sbarPos').style.width=pos+'%';
+    document.getElementById('sbarNeg').style.width=neg+'%';
+    document.getElementById('sbarNeu').style.width=neu+'%';
+    document.getElementById('sbarPosVal').textContent=pos+'%';
+    document.getElementById('sbarNegVal').textContent=neg+'%';
+    document.getElementById('sbarNeuVal').textContent=neu+'%';
+  },50);
+  document.getElementById('detailBody').textContent = e.body||e.snippet||'(Empty)';
+  document.getElementById('detailPanel').classList.add('open');
+}
+function closeDetail(){document.getElementById('detailPanel').classList.remove('open');}
+
+/* ─────────────────────────────────────────
+   CSV DOWNLOAD
+───────────────────────────────────────── */
+function downloadCSV(sentiment) {
+  const params = new URLSearchParams();
+  state.selectedAccounts.forEach(id => params.append('accounts[]', id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+  if (sentiment && sentiment !== 'all') params.append('sentiment', sentiment);
+  const url = '/api/download/csv?' + params.toString();
+  const a = document.createElement('a'); a.href = url; a.download = '';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  showToast(`Downloading ${sentiment||'all'} emails CSV...`, 'info');
+}
+
+/* ─────────────────────────────────────────
+   GOOGLE EXPORT MODAL
+───────────────────────────────────────── */
+function openExportModal(mode) {
+  state.exportMode = mode;
+  document.getElementById('exportModal').classList.add('open');
+  document.getElementById('exportModeNew').style.display = mode==='new' ? 'block' : 'none';
+  document.getElementById('exportModeAppend').style.display = mode==='append' ? 'block' : 'none';
+  document.getElementById('exportModalTitle').textContent = mode==='new' ? '📊 New Google Sheet' : '↩ Append to Google Sheet';
+  document.getElementById('exportModalSubtitle').textContent = mode==='new'
+    ? 'Create a new Google Sheet with your filtered email data.'
+    : 'Append filtered email data rows to an existing Google Sheet.';
+  document.getElementById('exportStatus').style.display = 'none';
+  document.getElementById('exportBtn').disabled = false;
+  document.getElementById('exportBtn').textContent = mode==='new' ? 'Create & Export' : 'Append Data';
+}
+function closeExportModal(){document.getElementById('exportModal').classList.remove('open');}
+
+async function doExport() {
+  const btn = document.getElementById('exportBtn');
+  const statusEl = document.getElementById('exportStatus');
+  const sentiment = document.querySelector('input[name="exportSentiment"]:checked')?.value || '';
+  const payload = {
+    accounts: state.selectedAccounts,
+    date_from: state.dateFrom,
+    date_to: state.dateTo,
+    sentiment,
+  };
+  if (state.exportMode === 'new') {
+    payload.sheet_name = document.getElementById('exportSheetName').value.trim() || `Email Analytics ${new Date().toLocaleDateString()}`;
+  } else {
+    const sid = document.getElementById('exportSpreadsheetId').value.trim();
+    if (!sid) { statusEl.style.display='block'; statusEl.style.background='var(--negative-bg)'; statusEl.style.border='1px solid var(--negative-border)'; statusEl.style.color='var(--negative)'; statusEl.textContent='Please enter a Spreadsheet ID.'; return; }
+    payload.spreadsheet_id = sid;
+  }
+
+  btn.disabled = true; btn.textContent = '⏳ Exporting...';
+  statusEl.style.display='block'; statusEl.style.background='var(--accent-light)'; statusEl.style.border='1px solid #c7d2fe'; statusEl.style.color=statusEl.style.color='var(--accent)'; statusEl.textContent = 'Connecting to Google Sheets...';
+
+  const endpoint = state.exportMode==='new' ? '/api/google/export' : '/api/google/append';
+  try {
+    const res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const data = await res.json();
+    if (data.error) {
+      statusEl.style.background='var(--negative-bg)'; statusEl.style.border='1px solid var(--negative-border)'; statusEl.style.color='var(--negative)';
+      statusEl.textContent = '❌ ' + data.error;
+    } else {
+      statusEl.style.background='var(--positive-bg)'; statusEl.style.border='1px solid var(--positive-border)'; statusEl.style.color='var(--positive)';
+      const rows = data.rows_exported||data.rows_appended||0;
+      statusEl.innerHTML = `✅ ${rows} rows exported! <a href="${data.sheet_url}" target="_blank" style="color:var(--accent);font-weight:600;margin-left:6px">Open Sheet →</a>`;
+      showToast(`${rows} rows exported to Google Sheets!`, 'success');
+    }
+  } catch(e) {
+    statusEl.style.background='var(--negative-bg)'; statusEl.style.color='var(--negative)';
+    statusEl.textContent = '❌ Network error: ' + e.message;
+  }
+  btn.disabled = false; btn.textContent = state.exportMode==='new'?'Create & Export':'Append Data';
+}
+
+
+/* ─────────────────────────────────────────
+   AI SUGGESTIONS
+───────────────────────────────────────── */
+async function loadAISuggestions() {
+  if (!state.accounts.length) {
+    document.getElementById('aiSuggestionsList').innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px">Add and sync email accounts first.</div>';
+    document.getElementById('aiImprovementTips').innerHTML = '';
+    document.getElementById('aiPositivePhrases').innerHTML = '';
+    document.getElementById('aiSubjectPerf').innerHTML = '';
+    document.getElementById('aiNegativePatterns').innerHTML = '';
+    return;
+  }
+  ['aiSuggestionsList','aiImprovementTips','aiSubjectPerf'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="loading-overlay" style="padding:24px"><div class="spinner"></div></div>';
+  });
+  ['aiPositivePhrases','aiNegativePatterns'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div class="loading-overlay" style="padding:16px"><div class="spinner"></div></div>';
+  });
+  try {
+    const res = await fetch('/api/ai-suggestions?' + buildParams());
+    const d = await res.json();
+
+    // Time cards
+    const h = d.best_hour;
+    document.getElementById('aiBestHour').textContent = h !== null && h !== undefined ? (h===0?'12:00 AM': h<12?h+':00 AM':h===12?'12:00 PM':(h-12)+':00 PM') : '—';
+    document.getElementById('aiBestHourSub').textContent = d.best_hour_replies ? d.best_hour_replies + ' replies at this hour' : 'Not enough data';
+    document.getElementById('aiBestDay').textContent = d.best_day || '—';
+    document.getElementById('aiBestDaySub').textContent = d.best_day_replies ? d.best_day_replies + ' replies on this day' : 'Not enough data';
+    const score = d.avg_score || 0;
+    const scoreEl = document.getElementById('aiAvgScore');
+    scoreEl.textContent = (score >= 0 ? '+' : '') + score.toFixed(2);
+    scoreEl.style.color = score > 0.05 ? 'var(--positive)' : score < -0.05 ? 'var(--negative)' : 'var(--neutral)';
+    document.getElementById('aiAvgScoreSub').textContent = score > 0.1 ? 'Good — leads are receptive' : score > 0 ? 'Slightly positive — room to improve' : score < -0.05 ? 'Negative — review sequences' : 'Neutral — try warmer copy';
+
+    // Smart suggestions
+    const suggestions = d.suggestions || [];
+    document.getElementById('aiSuggestionsList').innerHTML = suggestions.length ? suggestions.map(s =>
+      `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px;flex-shrink:0">${s.icon||'💡'}</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">${escHtml(s.title)}</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.5">${escHtml(s.text)}</div>
+        </div>
+      </div>`).join('') :
+      '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px">Sync more emails to generate suggestions.</div>';
+
+    // Improvement tips
+    const tips = d.improvement_tips || [];
+    document.getElementById('aiImprovementTips').innerHTML = tips.length ? tips.map(t =>
+      `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px;flex-shrink:0">${t.icon||'🎯'}</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px">${escHtml(t.title)}</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.5">${escHtml(t.text)}</div>
+        </div>
+      </div>`).join('') :
+      '<div style="padding:20px;text-align:center;color:var(--text-dim);font-size:13px">Not enough data yet.</div>';
+
+    // Positive phrases
+    const phrases = d.positive_phrases || [];
+    document.getElementById('aiPositivePhrases').innerHTML = phrases.length ? phrases.map(p =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--positive-bg);border:1px solid var(--positive-border);border-radius:20px;font-size:12px;font-weight:600;color:var(--positive)">${escHtml(p.phrase)} <span style="background:var(--positive);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px">x${p.count}</span></span>`
+    ).join('') : '<div style="color:var(--text-dim);font-size:13px;padding:8px">No positive replies detected yet.</div>';
+
+    // Subject performance
+    const subjects = d.subject_performance || [];
+    document.getElementById('aiSubjectPerf').innerHTML = subjects.length ? `<div class="rank-list">` + subjects.map((s,i) => {
+      const replyRate = s.reply_rate || 0;
+      const barColor = replyRate >= 50 ? 'var(--positive)' : replyRate >= 20 ? 'var(--neutral)' : 'var(--negative)';
+      return `<div class="rank-item">
+        <div class="rank-num">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px">${escHtml(s.subject)}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+            <div style="flex:1;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${replyRate}%;background:${barColor};border-radius:3px;transition:width 0.6s ease"></div>
+            </div>
+            <span style="font-size:11px;font-weight:700;color:${barColor};flex-shrink:0">${replyRate.toFixed(1)}% reply rate</span>
+          </div>
+          <div style="font-size:10.5px;color:var(--text-dim);margin-top:2px">
+            <span style="color:var(--positive);font-weight:600">+${s.positive}</span> &nbsp;
+            <span style="color:var(--negative);font-weight:600">-${s.negative}</span> &nbsp;
+            <span style="color:var(--neutral);font-weight:600">~${s.neutral}</span> &nbsp;
+            of ${s.total} replies
+          </div>
+        </div>
+      </div>`;
+    }).join('') + `</div>` : '<div style="padding:24px;text-align:center;color:var(--text-dim);font-size:13px">No subject data yet.</div>';
+
+    // Negative patterns
+    const negPhrases = d.negative_phrases || [];
+    document.getElementById('aiNegativePatterns').innerHTML = negPhrases.length ? negPhrases.map(p =>
+      `<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--negative-bg);border:1px solid var(--negative-border);border-radius:20px;font-size:12px;font-weight:600;color:var(--negative)">${escHtml(p.phrase)} <span style="background:var(--negative);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px">x${p.count}</span></span>`
+    ).join('') : '<div style="color:var(--text-dim);font-size:13px;padding:8px">No negative patterns detected.</div>';
+
+  } catch(err) {
+    document.getElementById('aiSuggestionsList').innerHTML = `<div style="padding:20px;color:var(--negative);font-size:13px">Error loading AI data: ${err.message}</div>`;
+  }
+}
+
+/* ─────────────────────────────────────────
+   EVENTS
+───────────────────────────────────────── */
+document.getElementById('addModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeAddModal(); });
+document.getElementById('exportModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeExportModal(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape'){closeDetail();closeAddModal();closeExportModal();} });
+</script>
+</body>
+</html>

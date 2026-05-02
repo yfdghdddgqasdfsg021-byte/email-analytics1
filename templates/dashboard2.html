@@ -1,0 +1,1705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INBOX.IQ — Control Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface2: #f7f8fa;
+  --surface3: #f0f2f5;
+  --border: #e5e7eb;
+  --border2: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-dim: #9ca3af;
+  --accent: #1d4ed8;
+  --accent-light: #eff6ff;
+  --accent-hover: #1e40af;
+  --positive: #16a34a;
+  --positive-bg: #f0fdf4;
+  --positive-border: #bbf7d0;
+  --negative: #dc2626;
+  --negative-bg: #fef2f2;
+  --negative-border: #fecaca;
+  --neutral: #d97706;
+  --neutral-bg: #fffbeb;
+  --neutral-border: #fde68a;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --cyan: #0891b2;
+  --gold: #f59e0b;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --sidebar-w: 220px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Geist', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  font-size: 13px;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-icon {
+  width: 30px; height: 30px;
+  background: var(--text);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.logo-text {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+.logo-text span { color: var(--accent); }
+
+.sidebar-nav { padding: 8px 8px 0; }
+.nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 6px 8px 2px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 400;
+  border-radius: var(--radius-sm);
+  margin: 1px 0;
+  transition: all 0.15s;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--surface2); color: var(--text); font-weight: 500; }
+.nav-icon { font-size: 14px; width: 18px; text-align: center; opacity: 0.7; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.accounts-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 8px 8px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.accounts-section::-webkit-scrollbar { width: 3px; }
+.accounts-section::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.account-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+  margin: 1px 0;
+}
+.account-item:hover { background: var(--surface2); }
+.account-item.selected { background: var(--accent-light); }
+.account-avatar {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  color: #fff; flex-shrink: 0;
+}
+.account-info { flex: 1; min-width: 0; }
+.account-email-text {
+  font-size: 11.5px; color: var(--text); font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.account-meta { font-size: 10px; color: var(--text-dim); }
+.account-check {
+  width: 14px; height: 14px; border-radius: 3px;
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0; transition: all 0.15s;
+}
+.account-item.selected .account-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+.account-delete-btn {
+  opacity: 0; width: 18px; height: 18px; border-radius: 3px;
+  background: var(--negative-bg); border: none;
+  color: var(--negative); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; flex-shrink: 0;
+}
+.account-item:hover .account-delete-btn { opacity: 1; }
+
+.sidebar-footer { padding: 10px 8px; border-top: 1px solid var(--border); }
+.btn-add-account {
+  width: 100%; padding: 8px;
+  background: var(--surface2);
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  gap: 5px; transition: all 0.2s; font-family: inherit;
+}
+.btn-add-account:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+/* ── MAIN ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+.topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-wrap: wrap;
+  position: sticky; top: 0; z-index: 50;
+}
+.topbar-left { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.topbar-date { font-size: 11px; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.topbar-title { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
+
+.date-range { display: flex; align-items: center; gap: 5px; }
+.date-input {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  padding: 6px 9px; font-size: 12px; font-family: inherit;
+}
+.date-input:focus { outline: none; border-color: var(--accent); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: var(--radius-sm);
+  font-size: 12.5px; font-weight: 500;
+  cursor: pointer; border: none; font-family: inherit;
+  transition: all 0.15s; white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text-muted); }
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+.btn-sync { background: var(--text); color: #fff; }
+.btn-sync:hover { background: #374151; }
+.btn-sync.syncing { opacity: 0.7; pointer-events: none; }
+.btn-sync.syncing .sync-icon { animation: spin 1s linear infinite; display: inline-block; }
+.btn-export { background: #16a34a; color: #fff; }
+.btn-export:hover { background: #15803d; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── STAT CARDS ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+  position: relative; transition: box-shadow 0.2s;
+  cursor: default;
+}
+.stat-card:hover { box-shadow: var(--shadow-md); }
+.stat-card.clickable { cursor: pointer; }
+.stat-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-bottom: 10px;
+}
+.stat-card.total .stat-icon { background: #eff6ff; }
+.stat-card.positive .stat-icon { background: var(--positive-bg); }
+.stat-card.negative .stat-icon { background: var(--negative-bg); }
+.stat-card.neutral .stat-icon { background: var(--neutral-bg); }
+.stat-value {
+  font-size: 28px; font-weight: 800; line-height: 1;
+  margin-bottom: 3px; letter-spacing: -1px;
+}
+.stat-card.total .stat-value { color: var(--accent); }
+.stat-card.positive .stat-value { color: var(--positive); }
+.stat-card.negative .stat-value { color: var(--negative); }
+.stat-card.neutral .stat-value { color: var(--neutral); }
+.stat-label { font-size: 12px; color: var(--text-muted); }
+.stat-pct {
+  position: absolute; top: 14px; right: 14px;
+  font-size: 10.5px; font-weight: 600; padding: 2px 7px;
+  border-radius: 20px;
+}
+.stat-card.positive .stat-pct { color: var(--positive); background: var(--positive-bg); }
+.stat-card.negative .stat-pct { color: var(--negative); background: var(--negative-bg); }
+.stat-card.neutral .stat-pct { color: var(--neutral); background: var(--neutral-bg); }
+
+/* ── AI INTELLIGENCE CARD ── */
+.ai-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 16px;
+}
+.ai-header { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.ai-badge {
+  font-size: 10px; font-weight: 700; color: var(--gold);
+  background: #fffbeb; border: 1px solid #fde68a;
+  padding: 2px 7px; border-radius: 20px; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.ai-title { font-size: 14px; font-weight: 700; }
+.ai-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+.ai-metric {
+  background: var(--surface2); border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.ai-metric-label { font-size: 10px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.ai-metric-value { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; font-family: 'Geist Mono', monospace; }
+.ai-metric-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.ai-insights { display: flex; flex-direction: column; gap: 6px; }
+.ai-insight {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--neutral-bg); border-left: 3px solid var(--gold);
+  padding: 9px 12px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 12px; color: var(--text-muted); line-height: 1.5;
+}
+.ai-insight .dot { color: var(--gold); flex-shrink: 0; margin-top: 1px; }
+
+/* ── CHARTS GRID ── */
+.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 16px; }
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+}
+.chart-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.chart-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.chart-subtitle { font-size: 11px; color: var(--text-dim); }
+
+/* ── PERFORMANCE (Subject Lines) ── */
+.performance-section { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+}
+.panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.panel-title { font-size: 13px; font-weight: 700; }
+.panel-sub { font-size: 11px; color: var(--text-dim); }
+
+.subject-bar-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 5px 0; border-bottom: 1px solid var(--surface2);
+}
+.subject-bar-row:last-child { border-bottom: none; }
+.subject-label {
+  font-size: 11px; color: var(--text-muted);
+  text-align: right; min-width: 130px; max-width: 130px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.subject-bar-wrap { flex: 1; height: 16px; background: var(--surface2); border-radius: 3px; overflow: hidden; position: relative; }
+.subject-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.5s ease; }
+.subject-bar-fill.positive { background: var(--positive); }
+.subject-bar-fill.mixed { background: var(--accent); }
+.subject-pct {
+  font-size: 10.5px; font-weight: 600; color: var(--text-muted);
+  min-width: 36px; text-align: right;
+  font-family: 'Geist Mono', monospace;
+}
+
+/* Domain row */
+.domain-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0; border-bottom: 1px solid var(--surface2);
+}
+.domain-row:last-child { border-bottom: none; }
+.domain-favicon {
+  width: 20px; height: 20px; border-radius: 4px;
+  background: var(--surface2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; color: var(--text-muted);
+  flex-shrink: 0;
+}
+.domain-name { flex: 1; font-size: 12px; color: var(--text); font-weight: 500; }
+.domain-bar-wrap { width: 80px; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.domain-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+.domain-cnt { font-size: 11px; font-weight: 600; color: var(--text-muted); min-width: 24px; text-align: right; font-family: 'Geist Mono', monospace; }
+
+/* ── SENDER / ACCOUNT SECTION ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.sender-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--surface2); }
+.sender-row:last-child { border-bottom: none; }
+.sender-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.sender-email { flex: 1; font-size: 11.5px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sender-bar { flex: 0 0 60px; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.sender-bar-fill { height: 100%; border-radius: 3px; }
+.sender-cnt { font-size: 11px; font-weight: 600; color: var(--text-muted); min-width: 20px; text-align: right; font-family: 'Geist Mono', monospace; }
+
+/* ── ACCOUNT BREAKDOWN ── */
+.breakdown-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--surface2);
+}
+.breakdown-row:last-child { border-bottom: none; }
+.breakdown-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.breakdown-info { flex: 1; min-width: 0; }
+.breakdown-name { font-size: 12px; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.breakdown-email { font-size: 10.5px; color: var(--text-dim); }
+.breakdown-bars { flex: 0 0 120px; }
+.mini-bar-row { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; }
+.mini-bar { border-radius: 1px; }
+.breakdown-score {
+  font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px;
+  font-family: 'Geist Mono', monospace;
+}
+.score-pos { color: var(--positive); background: var(--positive-bg); }
+.score-neg { color: var(--negative); background: var(--negative-bg); }
+.score-neu { color: var(--neutral); background: var(--neutral-bg); }
+
+/* ── INBOX VIEW ── */
+.inbox-controls {
+  display: flex; gap: 8px; align-items: center;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+.search-box {
+  flex: 1; min-width: 200px;
+  display: flex; align-items: center; gap: 7px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 7px 12px;
+}
+.search-box input {
+  background: none; border: none; color: var(--text);
+  font-size: 13px; font-family: inherit; flex: 1; outline: none;
+}
+.search-box input::placeholder { color: var(--text-dim); }
+
+.filter-pill {
+  padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); transition: all 0.15s; font-family: inherit;
+}
+.filter-pill.all.active { color: var(--accent); background: var(--accent-light); border-color: var(--accent); }
+.filter-pill.positive.active { color: var(--positive); background: var(--positive-bg); border-color: var(--positive); }
+.filter-pill.negative.active { color: var(--negative); background: var(--negative-bg); border-color: var(--negative); }
+.filter-pill.neutral.active { color: var(--neutral); background: var(--neutral-bg); border-color: var(--neutral); }
+
+.download-group { display: flex; gap: 4px; align-items: center; }
+.download-btn {
+  padding: 6px 10px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600;
+  cursor: pointer; border: 1px solid; font-family: inherit; transition: all 0.15s;
+  display: flex; align-items: center; gap: 4px;
+}
+.download-btn.all { color: var(--accent); border-color: var(--accent); background: var(--accent-light); }
+.download-btn.positive { color: var(--positive); border-color: var(--positive); background: var(--positive-bg); }
+.download-btn.negative { color: var(--negative); border-color: var(--negative); background: var(--negative-bg); }
+.download-btn.neutral { color: var(--neutral); border-color: var(--neutral); background: var(--neutral-bg); }
+.download-btn:hover { filter: brightness(0.95); transform: translateY(-1px); box-shadow: var(--shadow); }
+
+.email-list { display: flex; flex-direction: column; gap: 4px; }
+.email-row {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 14px;
+  display: flex; gap: 12px; cursor: pointer;
+  transition: all 0.12s; align-items: flex-start;
+}
+.email-row:hover { border-color: var(--border2); box-shadow: var(--shadow); }
+.email-sender-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.email-main { flex: 1; min-width: 0; }
+.email-row-top { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+.email-from { font-size: 12.5px; font-weight: 600; color: var(--text); }
+.email-subject { font-size: 12.5px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-subject strong { color: var(--text); }
+.email-snippet { font-size: 11.5px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+.email-date { font-size: 11px; color: var(--text-dim); }
+.account-tag {
+  font-size: 9.5px; padding: 1.5px 6px; border-radius: 10px;
+  background: var(--accent-light); color: var(--accent);
+  white-space: nowrap; max-width: 90px; overflow: hidden; text-overflow: ellipsis;
+}
+
+.sentiment-badge {
+  font-size: 9.5px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+  text-transform: uppercase; letter-spacing: 0.4px;
+}
+.sentiment-badge.positive { color: var(--positive); background: var(--positive-bg); border: 1px solid var(--positive-border); }
+.sentiment-badge.negative { color: var(--negative); background: var(--negative-bg); border: 1px solid var(--negative-border); }
+.sentiment-badge.neutral { color: var(--neutral); background: var(--neutral-bg); border: 1px solid var(--neutral-border); }
+
+/* ── PAGINATION ── */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.page-btn {
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface);
+  color: var(--text-muted); cursor: pointer; font-size: 12px; font-family: inherit; transition: all 0.12s;
+}
+.page-btn:hover { border-color: var(--accent); color: var(--accent); }
+.page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.page-btn:disabled { opacity: 0.35; pointer-events: none; }
+
+/* ── DETAIL PANEL ── */
+.detail-panel {
+  position: fixed; right: 0; top: 0; bottom: 0; width: 480px;
+  background: var(--surface); border-left: 1px solid var(--border);
+  z-index: 100; display: flex; flex-direction: column;
+  transform: translateX(100%); transition: transform 0.28s ease;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.08);
+}
+.detail-panel.open { transform: translateX(0); }
+.detail-header { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 9px; }
+.detail-close {
+  width: 26px; height: 26px; border-radius: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+}
+.detail-close:hover { color: var(--text); }
+.detail-subject { font-size: 13.5px; font-weight: 700; color: var(--text); flex: 1; line-height: 1.3; }
+.detail-meta { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.meta-row { display: flex; gap: 8px; margin-bottom: 5px; font-size: 12px; }
+.meta-label { color: var(--text-dim); min-width: 55px; }
+.meta-value { color: var(--text-muted); flex: 1; }
+.sentiment-detail { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.sentiment-bars-detail { display: flex; flex-direction: column; gap: 7px; margin-top: 9px; }
+.sbar-row { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+.sbar-label { width: 55px; color: var(--text-muted); font-size: 11px; }
+.sbar-track { flex: 1; height: 7px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+.sbar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+.sbar-fill.pos { background: var(--positive); }
+.sbar-fill.neg { background: var(--negative); }
+.sbar-fill.neu { background: var(--neutral); }
+.sbar-val { width: 34px; text-align: right; color: var(--text-dim); font-size: 11px; font-family: 'Geist Mono', monospace; }
+.detail-body {
+  flex: 1; overflow-y: auto; padding: 14px 18px;
+  font-size: 12.5px; line-height: 1.7; color: var(--text-muted);
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(3px); z-index: 200; display: none;
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px; width: 440px;
+  max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.modal h2 { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
+.modal-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; line-height: 1.6; }
+.form-group { margin-bottom: 14px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
+.form-input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); padding: 9px 12px;
+  font-size: 13px; font-family: inherit; transition: border-color 0.2s;
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.form-hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; line-height: 1.4; }
+.form-actions { display: flex; gap: 8px; margin-top: 18px; }
+
+/* ── GDRIVE MODAL ── */
+.gdrive-modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px; width: 500px;
+  max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.gdrive-step { display: none; }
+.gdrive-step.active { display: block; }
+.gdrive-options { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+.gdrive-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+}
+.gdrive-option:hover { border-color: var(--accent); background: var(--accent-light); }
+.gdrive-option.selected { border-color: var(--accent); background: var(--accent-light); }
+.gdrive-icon { font-size: 20px; }
+.gdrive-option-label { font-size: 13px; font-weight: 500; }
+.gdrive-option-sub { font-size: 11px; color: var(--text-muted); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 20px; right: 20px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 11px 16px; font-size: 12.5px;
+  color: var(--text); z-index: 500; display: flex; align-items: center; gap: 8px;
+  box-shadow: var(--shadow-md); transform: translateY(80px); opacity: 0;
+  transition: all 0.28s ease; max-width: 340px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: var(--positive); }
+.toast.error { border-color: var(--negative); }
+.toast.info { border-color: var(--accent); }
+
+/* Loading / empty */
+.loading-overlay {
+  display: flex; align-items: center; justify-content: center;
+  padding: 50px; color: var(--text-muted); font-size: 13px; gap: 9px;
+}
+.spinner {
+  width: 18px; height: 18px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.empty-state { text-align: center; padding: 50px 20px; }
+.empty-icon { font-size: 40px; margin-bottom: 10px; }
+.empty-state h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+.empty-state p { font-size: 13px; color: var(--text-muted); max-width: 280px; margin: 0 auto; line-height: 1.6; }
+
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-title { font-size: 13px; font-weight: 700; }
+
+.sync-progress { font-size: 11px; color: var(--positive); display: none; align-items: center; gap: 4px; }
+.sync-progress.visible { display: flex; }
+
+/* Tags */
+.selected-accounts-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.sel-tag {
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 500; color: #fff;
+}
+
+/* Phrases */
+.phrase-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.phrase-tag {
+  padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  border: 1px solid var(--positive-border); color: var(--positive); background: var(--positive-bg);
+}
+
+@media (max-width: 1200px) {
+  .performance-section { grid-template-columns: 1fr; }
+  .charts-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .sidebar { width: 180px; min-width: 180px; }
+  .detail-panel { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">✉</div>
+    <div class="logo-text">INBOX<span>.</span>IQ</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Views</div>
+    <div class="nav-item active" onclick="switchView('dashboard', this)">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="switchView('inbox', this)">
+      <span class="nav-icon">📥</span> Inbox
+    </div>
+    <div class="nav-item" onclick="switchView('intelligence', this)">
+      <span class="nav-icon">✨</span> Intelligence
+    </div>
+    <div class="nav-label" style="margin-top:8px">Accounts</div>
+  </nav>
+
+  <div class="accounts-section" id="accountsList">
+    <div class="loading-overlay" style="padding:16px"><div class="spinner"></div></div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="btn-add-account" onclick="openAddModal()">
+      ＋ Add Account
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-date" id="topbarDate"></div>
+      <div class="topbar-title" id="topbarTitle">Control Room</div>
+    </div>
+
+    <div class="date-range">
+      <input type="date" class="date-input" id="dateFrom">
+      <span style="color:var(--text-dim);font-size:11px">→</span>
+      <input type="date" class="date-input" id="dateTo">
+      <button class="btn btn-ghost" onclick="clearDates()">Clear</button>
+      <button class="btn btn-ghost" onclick="applyFilters()">Apply</button>
+    </div>
+
+    <div class="sync-progress" id="syncProgress"><div class="spinner"></div> Syncing...</div>
+
+    <button class="btn btn-export" onclick="openGDriveModal()">
+      ☁️ Export to Sheets
+    </button>
+
+    <button class="btn btn-sync" id="syncAllBtn" onclick="syncAll()">
+      <span class="sync-icon">↻</span> Sync All
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- DASHBOARD VIEW -->
+    <div class="view active" id="view-dashboard">
+      <div id="selectedAccountTags" class="selected-accounts-tags"></div>
+
+      <div class="stats-grid">
+        <div class="stat-card total">
+          <div class="stat-icon">📬</div>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-label">Total Emails</div>
+        </div>
+        <div class="stat-card positive clickable" onclick="filterAndGoInbox('positive')">
+          <div class="stat-icon">😊</div>
+          <div class="stat-value" id="statPositive">—</div>
+          <div class="stat-label">Positive Replies</div>
+          <div class="stat-pct" id="statPosPct">—</div>
+        </div>
+        <div class="stat-card negative clickable" onclick="filterAndGoInbox('negative')">
+          <div class="stat-icon">😤</div>
+          <div class="stat-value" id="statNegative">—</div>
+          <div class="stat-label">Negative Replies</div>
+          <div class="stat-pct" id="statNegPct">—</div>
+        </div>
+        <div class="stat-card neutral clickable" onclick="filterAndGoInbox('neutral')">
+          <div class="stat-icon">😐</div>
+          <div class="stat-value" id="statNeutral">—</div>
+          <div class="stat-label">Neutral Replies</div>
+          <div class="stat-pct" id="statNeuPct">—</div>
+        </div>
+      </div>
+
+      <!-- AI Intelligence Card -->
+      <div class="ai-card" id="aiCard">
+        <div class="ai-header">
+          <span style="font-size:16px">✨</span>
+          <span class="ai-badge">AI Intelligence</span>
+          <div class="ai-title">Smart Suggestions</div>
+        </div>
+        <div class="ai-grid">
+          <div class="ai-metric">
+            <div class="ai-metric-label">Best Hour</div>
+            <div class="ai-metric-value" id="bestHour">—</div>
+            <div class="ai-metric-sub" id="bestHourSub">— replies</div>
+          </div>
+          <div class="ai-metric">
+            <div class="ai-metric-label">Best Day</div>
+            <div class="ai-metric-value" id="bestDay">—</div>
+            <div class="ai-metric-sub" id="bestDaySub">— replies</div>
+          </div>
+        </div>
+        <div class="ai-insights" id="aiInsights">
+          <div class="ai-insight"><span class="dot">◆</span> Sync your accounts to get smart insights.</div>
+        </div>
+        <div class="phrase-tags" id="phraseTags" style="display:none"></div>
+      </div>
+
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Email Trend · Last 30 Days</div>
+              <div class="chart-subtitle">Sentiment over time</div>
+            </div>
+          </div>
+          <div style="height:200px;position:relative">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Sentiment Split</div></div>
+          <div style="height:200px;display:flex;align-items:center;justify-content:center">
+            <canvas id="donutChart" style="max-height:200px"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERFORMANCE: Subject Lines + Domains -->
+      <div class="performance-section">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">📊 Top Subject Lines · Reply Rate %</div>
+              <div class="panel-sub">Ranked by positive reply rate</div>
+            </div>
+          </div>
+          <div id="subjectRateList">
+            <div class="loading-overlay" style="padding:20px"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">🌐 Top Domains</div>
+              <div class="panel-sub">By email volume</div>
+            </div>
+          </div>
+          <div id="domainsList">
+            <div class="loading-overlay" style="padding:20px"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Senders + Account Breakdown -->
+      <div class="two-col">
+        <div class="panel">
+          <div class="section-header"><div class="section-title">👤 Top Senders</div></div>
+          <div id="topSendersList"></div>
+        </div>
+        <div class="panel">
+          <div class="section-header"><div class="section-title">📮 Per-Account Breakdown</div></div>
+          <div id="breakdownRows"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INBOX VIEW -->
+    <div class="view" id="view-inbox">
+      <div class="inbox-controls">
+        <div class="search-box">
+          <span style="color:var(--text-dim);font-size:13px">🔍</span>
+          <input type="text" id="searchInput" placeholder="Search emails..." oninput="debounceSearch()">
+        </div>
+        <button class="filter-pill all active" onclick="setFilter('', this)">All</button>
+        <button class="filter-pill positive" onclick="setFilter('positive', this)">😊 Positive</button>
+        <button class="filter-pill negative" onclick="setFilter('negative', this)">😤 Negative</button>
+        <button class="filter-pill neutral" onclick="setFilter('neutral', this)">😐 Neutral</button>
+      </div>
+
+      <!-- Download Buttons -->
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <span style="font-size:11px;color:var(--text-dim);font-weight:600">⬇ DOWNLOAD:</span>
+        <button class="download-btn all" onclick="downloadCSV('all')">↓ All Replies</button>
+        <button class="download-btn positive" onclick="downloadCSV('positive')">↓ Positive</button>
+        <button class="download-btn negative" onclick="downloadCSV('negative')">↓ Negative</button>
+        <button class="download-btn neutral" onclick="downloadCSV('neutral')">↓ Neutral</button>
+      </div>
+
+      <div id="emailListContainer">
+        <div class="loading-overlay"><div class="spinner"></div> Loading emails...</div>
+      </div>
+      <div id="paginationContainer"></div>
+    </div>
+
+    <!-- INTELLIGENCE VIEW -->
+    <div class="view" id="view-intelligence">
+      <div style="margin-bottom:16px">
+        <div style="font-size:16px;font-weight:700;margin-bottom:4px">✨ Intelligence Center</div>
+        <div style="font-size:12px;color:var(--text-muted)">Deep analysis of your email campaigns</div>
+      </div>
+
+      <!-- Most Replied Subject -->
+      <div class="panel" style="margin-bottom:14px" id="topSubjectPanel">
+        <div class="panel-header">
+          <div class="panel-title">🏆 Most Replied Subject Line</div>
+        </div>
+        <div id="topSubjectContent" style="color:var(--text-muted);font-size:13px">—</div>
+      </div>
+
+      <div class="performance-section" style="margin-bottom:14px">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">📊 Subject Lines · Reply Rate</div></div>
+          <div id="intelSubjectList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">🌐 Domain Analysis</div></div>
+          <div id="intelDomainList"></div>
+        </div>
+      </div>
+
+      <!-- Day Analysis -->
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">📅 Best Days to Send</div></div>
+          <div id="bestDaysList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">⏰ Best Hours to Send</div></div>
+          <div id="bestHoursList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- EMAIL DETAIL PANEL -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+    <div class="detail-subject" id="detailSubject">—</div>
+    <span class="sentiment-badge" id="detailSentBadge">neutral</span>
+  </div>
+  <div class="detail-meta" id="detailMeta"></div>
+  <div class="sentiment-detail">
+    <div style="font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px">Sentiment Analysis</div>
+    <div class="sentiment-bars-detail">
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--positive)">Positive</div>
+        <div class="sbar-track"><div class="sbar-fill pos" id="sbarPos" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarPosVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--negative)">Negative</div>
+        <div class="sbar-track"><div class="sbar-fill neg" id="sbarNeg" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNegVal">0%</div>
+      </div>
+      <div class="sbar-row">
+        <div class="sbar-label" style="color:var(--neutral)">Neutral</div>
+        <div class="sbar-track"><div class="sbar-fill neu" id="sbarNeu" style="width:0%"></div></div>
+        <div class="sbar-val" id="sbarNeuVal">0%</div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-body" id="detailBody">—</div>
+</div>
+
+<!-- ADD ACCOUNT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <h2>Add Email Account</h2>
+    <div class="modal-subtitle">
+      Connect your email via IMAP using an <strong style="color:var(--accent)">App Password</strong>
+      (not your regular password). For Gmail: Settings → Security → 2-Step Verification → App Passwords.
+    </div>
+    <div class="form-group">
+      <label class="form-label">Display Name</label>
+      <input type="text" class="form-input" id="inputName" placeholder="e.g. Work Gmail">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address *</label>
+      <input type="email" class="form-input" id="inputEmail" placeholder="you@gmail.com" oninput="autoDetectServer()">
+    </div>
+    <div class="form-group">
+      <label class="form-label">App Password *</label>
+      <input type="password" class="form-input" id="inputPassword" placeholder="xxxx xxxx xxxx xxxx">
+      <div class="form-hint">Use an App Password — never your regular password.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">IMAP Server</label>
+      <input type="text" class="form-input" id="inputServer" placeholder="Auto-detected">
+      <div class="form-hint" id="serverHint">Auto-detects from your email domain.</div>
+    </div>
+    <div id="addError" style="display:none;color:var(--negative);font-size:12px;padding:8px 11px;background:var(--negative-bg);border:1px solid var(--negative-border);border-radius:6px;margin-top:8px"></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" id="addBtn" onclick="submitAddAccount()" style="flex:1">🔌 Connect Account</button>
+      <button class="btn btn-ghost" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOOGLE DRIVE EXPORT MODAL -->
+<div class="modal-overlay" id="gdriveModal">
+  <div class="gdrive-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:15px;font-weight:700">☁️ Export to Google Sheets</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Create a new Google Sheet with email data</div>
+      </div>
+      <button class="detail-close" onclick="closeGDriveModal()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Sheet Title</label>
+      <input type="text" class="form-input" id="gdriveTitle" placeholder="INBOX.IQ Export">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Filter by Sentiment</label>
+      <div class="gdrive-options" id="gdriveSentimentOptions">
+        <div class="gdrive-option selected" data-val="all" onclick="selectGDriveSentiment(this)">
+          <div class="gdrive-icon">📬</div>
+          <div><div class="gdrive-option-label">All Replies</div><div class="gdrive-option-sub">Export everything</div></div>
+        </div>
+        <div class="gdrive-option" data-val="positive" onclick="selectGDriveSentiment(this)">
+          <div class="gdrive-icon">😊</div>
+          <div><div class="gdrive-option-label">Positive Only</div><div class="gdrive-option-sub">Interested leads</div></div>
+        </div>
+        <div class="gdrive-option" data-val="negative" onclick="selectGDriveSentiment(this)">
+          <div class="gdrive-icon">😤</div>
+          <div><div class="gdrive-option-label">Negative Only</div><div class="gdrive-option-sub">Complaints / unsubscribes</div></div>
+        </div>
+        <div class="gdrive-option" data-val="neutral" onclick="selectGDriveSentiment(this)">
+          <div class="gdrive-icon">😐</div>
+          <div><div class="gdrive-option-label">Neutral Only</div><div class="gdrive-option-sub">Informational replies</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Google Access Token</label>
+      <input type="password" class="form-input" id="gdriveToken" placeholder="ya29.xxxx (paste your OAuth access token)">
+      <div class="form-hint">
+        Get this from <a href="https://developers.google.com/oauthplayground" target="_blank" style="color:var(--accent)">OAuth Playground</a> → 
+        scope: <code>https://www.googleapis.com/auth/spreadsheets</code>
+      </div>
+    </div>
+
+    <div id="gdriveResult" style="display:none;padding:10px 12px;background:var(--positive-bg);border:1px solid var(--positive-border);border-radius:6px;font-size:12px;margin-bottom:12px"></div>
+    <div id="gdriveError" style="display:none;color:var(--negative);padding:8px 11px;background:var(--negative-bg);border:1px solid var(--negative-border);border-radius:6px;font-size:12px;margin-bottom:12px"></div>
+
+    <div class="form-actions">
+      <button class="btn btn-export" id="gdriveExportBtn" onclick="doGDriveExport()" style="flex:1">☁️ Create Google Sheet</button>
+      <button class="btn btn-ghost" onclick="closeGDriveModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+const state = {
+  accounts: [],
+  selectedAccounts: [],
+  dateFrom: '',
+  dateTo: '',
+  sentimentFilter: '',
+  searchQuery: '',
+  currentPage: 1,
+  stats: null,
+  trendChart: null,
+  donutChart: null,
+  searchTimer: null,
+};
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }).toUpperCase();
+  document.getElementById('gdriveTitle').value = `INBOX.IQ Export ${new Date().toLocaleDateString()}`;
+  loadAccounts();
+});
+
+// ── VIEW SWITCHING ──
+function switchView(name, el) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbarTitle').textContent = { dashboard:'Control Room', inbox:'Inbox', intelligence:'Intelligence Center' }[name] || name;
+  if (name === 'inbox') loadEmails();
+  if (name === 'intelligence') renderIntelligenceView();
+  closeDetail();
+}
+
+// ── ACCOUNTS ──
+async function loadAccounts() {
+  const res = await fetch('/api/accounts');
+  state.accounts = await res.json();
+  renderAccountsSidebar();
+  if (state.accounts.length > 0) {
+    state.selectedAccounts = state.accounts.map(a => a.id);
+  }
+  renderSelectedTags();
+  loadStats();
+}
+
+function renderAccountsSidebar() {
+  const el = document.getElementById('accountsList');
+  if (!state.accounts.length) {
+    el.innerHTML = `<div style="padding:14px 10px;text-align:center;font-size:12px;color:var(--text-dim)">No accounts yet</div>`;
+    return;
+  }
+  el.innerHTML = state.accounts.map(a => {
+    const color = avatarColor(a.email);
+    const sel = state.selectedAccounts.includes(a.id);
+    return `
+    <div class="account-item ${sel ? 'selected' : ''}" id="acct-${a.id}" onclick="toggleAccount(${a.id})">
+      <div class="account-avatar" style="background:${color}">${initials(a.display_name || a.email)}</div>
+      <div class="account-info">
+        <div class="account-email-text">${a.display_name || a.email.split('@')[0]}</div>
+        <div class="account-meta">${a.total_emails || 0} emails</div>
+      </div>
+      <div class="account-check">${sel ? '✓' : ''}</div>
+      <button class="account-delete-btn" onclick="event.stopPropagation();deleteAccount(${a.id})" title="Remove">×</button>
+    </div>`;
+  }).join('');
+}
+
+function toggleAccount(id) {
+  if (state.selectedAccounts.includes(id)) {
+    state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  } else {
+    state.selectedAccounts.push(id);
+  }
+  renderAccountsSidebar();
+  renderSelectedTags();
+  loadStats();
+  if (document.getElementById('view-inbox').classList.contains('active')) loadEmails();
+}
+
+function renderSelectedTags() {
+  const el = document.getElementById('selectedAccountTags');
+  if (state.selectedAccounts.length === state.accounts.length || !state.selectedAccounts.length) {
+    el.innerHTML = '';
+    return;
+  }
+  el.innerHTML = state.selectedAccounts.map(id => {
+    const a = state.accounts.find(x => x.id === id);
+    if (!a) return '';
+    const color = avatarColor(a.email);
+    return `<div class="sel-tag" style="background:${color}">${a.display_name || a.email.split('@')[0]}</div>`;
+  }).join('');
+}
+
+async function deleteAccount(id) {
+  if (!confirm('Remove this account and all its emails?')) return;
+  await fetch(`/api/accounts/${id}`, { method: 'DELETE' });
+  state.accounts = state.accounts.filter(a => a.id !== id);
+  state.selectedAccounts = state.selectedAccounts.filter(x => x !== id);
+  renderAccountsSidebar();
+  renderSelectedTags();
+  loadStats();
+  showToast('Account removed', 'info');
+}
+
+// ── SYNC ──
+async function syncAll() {
+  const btn = document.getElementById('syncAllBtn');
+  btn.classList.add('syncing');
+  document.getElementById('syncProgress').classList.add('visible');
+  showToast('Syncing all accounts in background...', 'info');
+  await fetch('/api/sync/all', { method: 'POST' });
+  setTimeout(() => {
+    btn.classList.remove('syncing');
+    document.getElementById('syncProgress').classList.remove('visible');
+    loadAccounts();
+    showToast('Sync complete!', 'success');
+  }, 4000);
+}
+
+async function syncAccount(id) {
+  await fetch(`/api/sync/${id}`, { method: 'POST' });
+  showToast('Syncing in background...', 'info');
+  setTimeout(() => loadAccounts(), 3000);
+}
+
+// ── FILTERS ──
+function applyFilters() {
+  state.dateFrom = document.getElementById('dateFrom').value;
+  state.dateTo = document.getElementById('dateTo').value;
+  state.currentPage = 1;
+  loadStats();
+  if (document.getElementById('view-inbox').classList.contains('active')) loadEmails();
+}
+
+function clearDates() {
+  document.getElementById('dateFrom').value = '';
+  document.getElementById('dateTo').value = '';
+  state.dateFrom = ''; state.dateTo = '';
+  loadStats();
+}
+
+function setFilter(val, el) {
+  state.sentimentFilter = val;
+  state.currentPage = 1;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  loadEmails();
+}
+
+function filterAndGoInbox(sentiment) {
+  state.sentimentFilter = sentiment;
+  state.currentPage = 1;
+  switchView('inbox', document.querySelector('.nav-item:nth-child(2)'));
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.classList.toggle('active', p.classList.contains(sentiment));
+  });
+}
+
+function debounceSearch() {
+  clearTimeout(state.searchTimer);
+  state.searchTimer = setTimeout(() => {
+    state.searchQuery = document.getElementById('searchInput').value;
+    state.currentPage = 1;
+    loadEmails();
+  }, 350);
+}
+
+// ── STATS ──
+async function loadStats() {
+  const params = new URLSearchParams();
+  state.selectedAccounts.forEach(id => params.append('accounts[]', id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+
+  const res = await fetch('/api/stats?' + params);
+  state.stats = await res.json();
+  renderStats(state.stats);
+}
+
+function renderStats(s) {
+  const total = s.total || 0;
+  document.getElementById('statTotal').textContent = fmt(total);
+  document.getElementById('statPositive').textContent = fmt(s.positive || 0);
+  document.getElementById('statNegative').textContent = fmt(s.negative || 0);
+  document.getElementById('statNeutral').textContent = fmt(s.neutral || 0);
+  if (total > 0) {
+    document.getElementById('statPosPct').textContent = pct(s.positive, total);
+    document.getElementById('statNegPct').textContent = pct(s.negative, total);
+    document.getElementById('statNeuPct').textContent = pct(s.neutral, total);
+  }
+  renderTrendChart(s.trend || []);
+  renderDonutChart(s.positive || 0, s.negative || 0, s.neutral || 0);
+  renderSubjectRates(s.subject_reply_rate || []);
+  renderDomains(s.top_domains || [], 'domainsList');
+  renderTopSenders(s.top_senders || []);
+  renderBreakdown(s.by_account || []);
+  renderAICard(s);
+}
+
+function renderAICard(s) {
+  // Best hour
+  const hours = s.best_hours || [];
+  if (hours.length > 0) {
+    const best = hours[0];
+    document.getElementById('bestHour').textContent = (best.hour || '00') + ':00';
+    document.getElementById('bestHourSub').textContent = (best.positive || 0) + ' positive replies';
+  }
+  // Best day
+  const days = s.best_days || [];
+  if (days.length > 0) {
+    const best = days[0];
+    document.getElementById('bestDay').textContent = best.day || '—';
+    document.getElementById('bestDaySub').textContent = (best.positive || 0) + ' replies';
+  }
+
+  const insights = [];
+  const top = (s.subject_reply_rate || [])[0];
+  if (top) {
+    insights.push(`Subject "${(top.subject || '').substring(0, 50)}..." performs ${top.reply_rate}% reply rate — replicate its hook.`);
+  }
+  if (hours.length > 0) {
+    insights.push(`Replies peak at ${hours[0].hour}:00 — schedule sends 1–2 hours earlier.`);
+  }
+  if (days.length > 0) {
+    insights.push(`${days[0].day} drives the most replies — prioritize that day for outreach.`);
+  }
+  if (s.most_replied_subject) {
+    insights.push(`Most replied subject had ${s.most_replied_subject.cnt} positive responses so far.`);
+  }
+
+  const el = document.getElementById('aiInsights');
+  if (insights.length === 0) {
+    el.innerHTML = `<div class="ai-insight"><span class="dot">◆</span> Sync your accounts to get smart insights.</div>`;
+  } else {
+    el.innerHTML = insights.map(i => `<div class="ai-insight"><span class="dot">◆</span> ${escHtml(i)}</div>`).join('');
+  }
+}
+
+// ── CHARTS ──
+function renderTrendChart(trend) {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (state.trendChart) state.trendChart.destroy();
+  const labels = trend.map(t => t.day?.slice(5) || '');
+  state.trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Total', data: trend.map(t => t.total), borderColor: '#6b7280', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.4 },
+        { label: 'Positive', data: trend.map(t => t.positive), borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.07)', borderWidth: 2, fill: true, pointRadius: 0, tension: 0.4 },
+        { label: 'Negative', data: trend.map(t => t.negative), borderColor: '#dc2626', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 0, tension: 0.4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9ca3af', maxTicksLimit: 8 } },
+        y: { grid: { color: '#f3f4f6' }, ticks: { font: { size: 10 }, color: '#9ca3af' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+function renderDonutChart(pos, neg, neu) {
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  if (state.donutChart) state.donutChart.destroy();
+  state.donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Positive', 'Negative', 'Neutral'],
+      datasets: [{ data: [pos, neg, neu], backgroundColor: ['#16a34a', '#dc2626', '#d97706'], borderWidth: 0, hoverOffset: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10, boxWidth: 10 } }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+// ── SUBJECT RATES ──
+function renderSubjectRates(subjects) {
+  const el = document.getElementById('subjectRateList');
+  if (!subjects.length) {
+    el.innerHTML = `<div style="color:var(--text-dim);font-size:12px;padding:10px 0">No data yet. Sync your accounts.</div>`;
+    return;
+  }
+  const maxRate = Math.max(...subjects.map(s => s.reply_rate || 0), 1);
+  el.innerHTML = subjects.map(s => {
+    const rate = s.reply_rate || 0;
+    const pctW = Math.round((rate / maxRate) * 100);
+    const label = (s.subject || '(No Subject)').substring(0, 38) + ((s.subject || '').length > 38 ? '...' : '');
+    return `
+    <div class="subject-bar-row">
+      <div class="subject-label" title="${escHtml(s.subject || '')}">${escHtml(label)}</div>
+      <div class="subject-bar-wrap">
+        <div class="subject-bar-fill positive" style="width:${pctW}%"></div>
+      </div>
+      <div class="subject-pct">${rate}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── DOMAINS ──
+function renderDomains(domains, targetId) {
+  const el = document.getElementById(targetId);
+  if (!domains.length) {
+    el.innerHTML = `<div style="color:var(--text-dim);font-size:12px;padding:10px 0">No data yet.</div>`;
+    return;
+  }
+  const max = domains[0]?.cnt || 1;
+  el.innerHTML = domains.map((d, i) => {
+    const w = Math.round((d.cnt / max) * 100);
+    const abbr = (d.sender_domain || '?').substring(0, 2).toUpperCase();
+    return `
+    <div class="domain-row">
+      <div class="domain-favicon">${abbr}</div>
+      <div class="domain-name">${escHtml(d.sender_domain || '—')}</div>
+      <div class="domain-bar-wrap"><div class="domain-bar-fill" style="width:${w}%"></div></div>
+      <div class="domain-cnt">${d.cnt}</div>
+      <div class="sentiment-badge ${d.reply_rate >= 50 ? 'positive' : d.reply_rate >= 20 ? 'neutral' : 'negative'}" style="font-size:9px">${d.reply_rate || 0}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── TOP SENDERS ──
+function renderTopSenders(senders) {
+  const el = document.getElementById('topSendersList');
+  if (!senders.length) {
+    el.innerHTML = `<div style="color:var(--text-dim);font-size:12px;padding:10px 0">No data yet.</div>`;
+    return;
+  }
+  const max = senders[0]?.cnt || 1;
+  el.innerHTML = senders.map((s, i) => {
+    const color = avatarColor(s.sender_email || i);
+    const pctW = Math.round((s.cnt / max) * 100);
+    const name = s.sender_name || s.sender_email?.split('@')[0] || '?';
+    return `
+    <div class="sender-row">
+      <div class="sender-avatar" style="background:${color}">${initials(name)}</div>
+      <div class="sender-email" title="${s.sender_email || ''}">${escHtml(s.sender_email || '—')}</div>
+      <div class="sender-bar"><div class="sender-bar-fill" style="width:${pctW}%;background:${color};height:100%"></div></div>
+      <div class="sender-cnt">${s.cnt}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── BREAKDOWN ──
+function renderBreakdown(accounts) {
+  const el = document.getElementById('breakdownRows');
+  if (!accounts.length) {
+    el.innerHTML = `<div style="color:var(--text-dim);font-size:12px;padding:10px 0">No accounts data.</div>`;
+    return;
+  }
+  el.innerHTML = accounts.map(a => {
+    const color = avatarColor(a.email);
+    const total = (a.positive || 0) + (a.negative || 0) + (a.neutral || 0) || 1;
+    const pp = Math.round((a.positive || 0) / total * 100);
+    const np = Math.round((a.negative || 0) / total * 100);
+    const nup = Math.max(0, 100 - pp - np);
+    const score = a.avg_score || 0;
+    const cls = score > 0.05 ? 'score-pos' : score < -0.05 ? 'score-neg' : 'score-neu';
+    return `
+    <div class="breakdown-row">
+      <div class="breakdown-avatar" style="background:${color}">${initials(a.display_name || a.email)}</div>
+      <div class="breakdown-info">
+        <div class="breakdown-name">${escHtml(a.display_name || a.email.split('@')[0])}</div>
+        <div class="breakdown-email">${escHtml(a.email)}</div>
+      </div>
+      <div class="breakdown-bars">
+        <div class="mini-bar-row">
+          <div class="mini-bar" style="flex:${pp||1};background:var(--positive)"></div>
+          <div class="mini-bar" style="flex:${np||1};background:var(--negative)"></div>
+          <div class="mini-bar" style="flex:${nup||1};background:var(--neutral)"></div>
+        </div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:3px">
+          <span style="color:var(--positive)">+${a.positive}</span> &nbsp;
+          <span style="color:var(--negative)">-${a.negative}</span> &nbsp;
+          <span style="color:var(--neutral)">~${a.neutral}</span>
+        </div>
+      </div>
+      <div class="breakdown-score ${cls}">${score >= 0 ? '+' : ''}${score.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── INTELLIGENCE VIEW ──
+function renderIntelligenceView() {
+  const s = state.stats;
+  if (!s) { loadStats().then(() => renderIntelligenceView()); return; }
+
+  // Top subject
+  const topSub = s.most_replied_subject;
+  document.getElementById('topSubjectContent').innerHTML = topSub
+    ? `<div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">"${escHtml(topSub.subject || '—')}"</div>
+       <div style="font-size:12px;color:var(--text-muted)">${topSub.cnt} positive replies · Avg score: ${(topSub.avg_score || 0).toFixed(2)}</div>`
+    : `<div style="color:var(--text-dim);font-size:12px">No data yet. Sync your accounts.</div>`;
+
+  // Subject list in intelligence
+  renderSubjectRates(s.subject_reply_rate || []);
+  const intelSub = document.getElementById('intelSubjectList');
+  intelSub.innerHTML = document.getElementById('subjectRateList').innerHTML;
+
+  // Domains in intelligence
+  renderDomains(s.top_domains || [], 'intelDomainList');
+
+  // Best days
+  const dEl = document.getElementById('bestDaysList');
+  const days = s.best_days || [];
+  if (!days.length) { dEl.innerHTML = `<div style="color:var(--text-dim);font-size:12px">No data.</div>`; }
+  else {
+    const maxPos = Math.max(...days.map(d => d.positive || 0), 1);
+    dEl.innerHTML = days.map(d => `
+      <div class="domain-row">
+        <div style="font-size:13px;font-weight:600;min-width:36px;color:var(--text)">${d.day}</div>
+        <div class="domain-bar-wrap" style="flex:1"><div class="domain-bar-fill" style="width:${Math.round((d.positive||0)/maxPos*100)}%;background:var(--positive)"></div></div>
+        <div class="domain-cnt">${d.positive} pos</div>
+        <div style="font-size:10.5px;color:var(--text-dim)">${d.cnt} total</div>
+      </div>`).join('');
+  }
+
+  // Best hours
+  const hEl = document.getElementById('bestHoursList');
+  const hrs = s.best_hours || [];
+  if (!hrs.length) { hEl.innerHTML = `<div style="color:var(--text-dim);font-size:12px">No data.</div>`; }
+  else {
+    const maxPos = Math.max(...hrs.map(h => h.positive || 0), 1);
+    hEl.innerHTML = hrs.slice(0, 12).map(h => `
+      <div class="domain-row">
+        <div style="font-size:11px;font-weight:600;min-width:36px;color:var(--text);font-family:'Geist Mono',monospace">${h.hour}:00</div>
+        <div class="domain-bar-wrap" style="flex:1"><div class="domain-bar-fill" style="width:${Math.round((h.positive||0)/maxPos*100)}%;background:var(--accent)"></div></div>
+        <div class="domain-cnt">${h.positive}</div>
+      </div>`).join('');
+  }
+}
+
+// ── EMAILS ──
+async function loadEmails() {
+  if (!state.accounts.length) {
+    document.getElementById('emailListContainer').innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><h3>No accounts yet</h3><p>Add an email account to start viewing your inbox.</p></div>`;
+    return;
+  }
+  document.getElementById('emailListContainer').innerHTML = `<div class="loading-overlay"><div class="spinner"></div> Loading emails...</div>`;
+  const params = new URLSearchParams();
+  state.selectedAccounts.forEach(id => params.append('accounts[]', id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+  if (state.sentimentFilter) params.append('sentiment', state.sentimentFilter);
+  if (state.searchQuery) params.append('search', state.searchQuery);
+  params.append('page', state.currentPage);
+  params.append('per_page', 30);
+  params.append('folder', 'INBOX');
+  const res = await fetch('/api/emails?' + params);
+  const data = await res.json();
+  renderEmailList(data.emails, data.total);
+  renderPagination(data.pages, data.page, data.total);
+}
+
+function renderEmailList(emails, total) {
+  const el = document.getElementById('emailListContainer');
+  if (!emails || !emails.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><h3>No emails found</h3><p>${state.sentimentFilter || state.searchQuery ? 'Try adjusting your filters.' : 'Sync your accounts to load emails.'}</p></div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="font-size:11.5px;color:var(--text-dim);margin-bottom:9px">${total.toLocaleString()} emails</div>
+    <div class="email-list">
+      ${emails.map(e => {
+        const color = avatarColor(e.sender_email || e.sender);
+        const date = new Date(e.date).toLocaleDateString('en', { month:'short', day:'numeric', year:'2-digit' });
+        const time = new Date(e.date).toLocaleTimeString('en', { hour:'2-digit', minute:'2-digit' });
+        const fromName = e.sender?.replace(/<[^>]+>/, '').trim() || e.sender_email || '?';
+        return `
+        <div class="email-row" onclick="openEmail(${e.id})">
+          <div class="email-sender-avatar" style="background:${color}">${initials(fromName)}</div>
+          <div class="email-main">
+            <div class="email-row-top">
+              <div class="email-from">${escHtml(fromName.substring(0, 28))}</div>
+              <div class="account-tag">${e.account_name || e.account_email?.split('@')[1] || ''}</div>
+            </div>
+            <div class="email-subject"><strong>${escHtml(e.subject || '(No Subject)')}</strong></div>
+            <div class="email-snippet">${escHtml(e.snippet || '')}</div>
+          </div>
+          <div class="email-meta">
+            <div class="email-date">${date} ${time}</div>
+            <div class="sentiment-badge ${e.sentiment}">${sentimentEmoji(e.sentiment)} ${e.sentiment}</div>
+            ${e.sender_domain ? `<div style="font-size:9.5px;color:var(--text-dim)">${escHtml(e.sender_domain)}</div>` : ''}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderPagination(pages, current, total) {
+  const el = document.getElementById('paginationContainer');
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  let btns = `<button class="page-btn" onclick="goPage(${current-1})" ${current<=1?'disabled':''}>‹</button>`;
+  const range = [];
+  for (let i = Math.max(1, current-2); i <= Math.min(pages, current+2); i++) range.push(i);
+  if (range[0] > 1) { btns += `<button class="page-btn" onclick="goPage(1)">1</button>`; if (range[0] > 2) btns += `<span style="color:var(--text-dim)">…</span>`; }
+  range.forEach(p => { btns += `<button class="page-btn ${p===current?'active':''}" onclick="goPage(${p})">${p}</button>`; });
+  if (range[range.length-1] < pages) { if (range[range.length-1] < pages-1) btns += `<span style="color:var(--text-dim)">…</span>`; btns += `<button class="page-btn" onclick="goPage(${pages})">${pages}</button>`; }
+  btns += `<button class="page-btn" onclick="goPage(${current+1})" ${current>=pages?'disabled':''}>›</button>`;
+  el.innerHTML = `<div class="pagination">${btns}<span style="font-size:11.5px;color:var(--text-dim)">${total.toLocaleString()} total</span></div>`;
+}
+
+function goPage(p) {
+  state.currentPage = p;
+  loadEmails();
+  document.querySelector('.content').scrollTop = 0;
+}
+
+// ── EMAIL DETAIL ──
+async function openEmail(id) {
+  const res = await fetch(`/api/emails/${id}`);
+  const e = await res.json();
+  document.getElementById('detailSubject').textContent = e.subject || '(No Subject)';
+  const badge = document.getElementById('detailSentBadge');
+  badge.textContent = sentimentEmoji(e.sentiment) + ' ' + (e.sentiment || 'neutral');
+  badge.className = 'sentiment-badge ' + (e.sentiment || 'neutral');
+  document.getElementById('detailMeta').innerHTML = `
+    <div class="meta-row"><div class="meta-label">From</div><div class="meta-value">${escHtml(e.sender_name || e.sender || '—')}</div></div>
+    <div class="meta-row"><div class="meta-label">Email</div><div class="meta-value">${escHtml(e.sender_email || '—')}</div></div>
+    <div class="meta-row"><div class="meta-label">Domain</div><div class="meta-value">${escHtml(e.sender_domain || '—')}</div></div>
+    <div class="meta-row"><div class="meta-label">To</div><div class="meta-value">${escHtml(e.recipient || '—')}</div></div>
+    <div class="meta-row"><div class="meta-label">Date</div><div class="meta-value">${new Date(e.date).toLocaleString()}</div></div>
+    ${e.phone_numbers ? `<div class="meta-row"><div class="meta-label">Phone</div><div class="meta-value">${escHtml(e.phone_numbers)}</div></div>` : ''}
+    <div class="meta-row"><div class="meta-label">Account</div><div class="meta-value">${escHtml(e.account_email || '—')}</div></div>`;
+  const pos = Math.round((e.sentiment_positive || 0) * 100);
+  const neg = Math.round((e.sentiment_negative || 0) * 100);
+  const neu = Math.max(0, 100 - pos - neg);
+  setTimeout(() => {
+    document.getElementById('sbarPos').style.width = pos + '%';
+    document.getElementById('sbarNeg').style.width = neg + '%';
+    document.getElementById('sbarNeu').style.width = neu + '%';
+    document.getElementById('sbarPosVal').textContent = pos + '%';
+    document.getElementById('sbarNegVal').textContent = neg + '%';
+    document.getElementById('sbarNeuVal').textContent = neu + '%';
+  }, 50);
+  document.getElementById('detailBody').textContent = e.body || e.snippet || '(Empty)';
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail() { document.getElementById('detailPanel').classList.remove('open'); }
+
+// ── ADD ACCOUNT MODAL ──
+function openAddModal() { document.getElementById('addModal').classList.add('open'); }
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('open');
+  document.getElementById('addError').style.display = 'none';
+  ['inputName','inputEmail','inputPassword','inputServer'].forEach(id => document.getElementById(id).value = '');
+}
+
+function autoDetectServer() {
+  const email = document.getElementById('inputEmail').value;
+  const domain = email.split('@')[1]?.toLowerCase();
+  const servers = { 'gmail.com':'imap.gmail.com','yahoo.com':'imap.mail.yahoo.com','outlook.com':'imap-mail.outlook.com','hotmail.com':'imap-mail.outlook.com','live.com':'imap-mail.outlook.com','icloud.com':'imap.mail.me.com' };
+  if (domain && servers[domain]) {
+    document.getElementById('inputServer').value = servers[domain];
+    document.getElementById('serverHint').textContent = `✓ Auto-detected: ${servers[domain]}`;
+  }
+}
+
+async function submitAddAccount() {
+  const btn = document.getElementById('addBtn');
+  const err = document.getElementById('addError');
+  btn.textContent = '⏳ Connecting...';
+  btn.disabled = true;
+  err.style.display = 'none';
+  try {
+    const res = await fetch('/api/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: document.getElementById('inputEmail').value,
+        app_password: document.getElementById('inputPassword').value,
+        display_name: document.getElementById('inputName').value,
+        imap_server: document.getElementById('inputServer').value,
+      })
+    });
+    const data = await res.json();
+    if (data.error) {
+      err.textContent = data.error;
+      err.style.display = 'block';
+    } else {
+      closeAddModal();
+      showToast('Account connected!', 'success');
+      loadAccounts();
+    }
+  } catch(e) {
+    err.textContent = 'Network error. Try again.';
+    err.style.display = 'block';
+  }
+  btn.textContent = '🔌 Connect Account';
+  btn.disabled = false;
+}
+
+// ── CSV DOWNLOAD ──
+function downloadCSV(sentiment) {
+  const params = new URLSearchParams();
+  params.append('sentiment', sentiment);
+  state.selectedAccounts.forEach(id => params.append('accounts[]', id));
+  if (state.dateFrom) params.append('date_from', state.dateFrom);
+  if (state.dateTo) params.append('date_to', state.dateTo);
+  window.location.href = '/api/download/csv?' + params.toString();
+  showToast(`Downloading ${sentiment} replies...`, 'info');
+}
+
+// ── GDRIVE EXPORT ──
+function openGDriveModal() {
+  document.getElementById('gdriveModal').classList.add('open');
+  document.getElementById('gdriveResult').style.display = 'none';
+  document.getElementById('gdriveError').style.display = 'none';
+}
+function closeGDriveModal() { document.getElementById('gdriveModal').classList.remove('open'); }
+
+function selectGDriveSentiment(el) {
+  document.querySelectorAll('.gdrive-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function doGDriveExport() {
+  const btn = document.getElementById('gdriveExportBtn');
+  const resEl = document.getElementById('gdriveResult');
+  const errEl = document.getElementById('gdriveError');
+  resEl.style.display = 'none';
+  errEl.style.display = 'none';
+  const access_token = document.getElementById('gdriveToken').value.trim();
+  const sheet_title = document.getElementById('gdriveTitle').value.trim() || `INBOX.IQ Export ${new Date().toLocaleDateString()}`;
+  const selected = document.querySelector('.gdrive-option.selected');
+  const sentiment = selected ? selected.dataset.val : 'all';
+  if (!access_token) {
+    errEl.textContent = 'Please paste your Google access token.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.textContent = '⏳ Exporting...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/export/gdrive', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_token, sheet_title, sentiment,
+        account_ids: state.selectedAccounts,
+        date_from: state.dateFrom,
+        date_to: state.dateTo,
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      resEl.innerHTML = `✅ ${data.message} <a href="${data.sheet_url}" target="_blank" style="color:var(--accent);font-weight:600">Open Sheet →</a>`;
+      resEl.style.display = 'block';
+      showToast('Exported to Google Sheets!', 'success');
+    } else {
+      errEl.textContent = data.error || 'Export failed.';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Network error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+  btn.textContent = '☁️ Create Google Sheet';
+  btn.disabled = false;
+}
+
+// ── HELPERS ──
+function sentimentEmoji(s) { return { positive:'😊', negative:'😤', neutral:'😐' }[s] || '😐'; }
+function fmt(n) { return Number(n || 0).toLocaleString(); }
+function pct(v, t) { return Math.round((v||0)/(t||1)*100) + '%'; }
+function escHtml(str) { return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function initials(str) {
+  const s = String(str || '?').trim();
+  const words = s.split(/\s+/);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return s.substring(0, 2).toUpperCase();
+}
+function avatarColor(str) {
+  const colors = ['#1d4ed8','#7c3aed','#db2777','#dc2626','#d97706','#16a34a','#0891b2','#4f46e5','#0d9488','#65a30d'];
+  let hash = 0;
+  for (const c of String(str || '')) hash = c.charCodeAt(0) + ((hash << 5) - hash);
+  return colors[Math.abs(hash) % colors.length];
+}
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  const icons = { success:'✅', error:'❌', info:'ℹ️' };
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+// ── KEYBOARD & CLOSE ──
+document.getElementById('addModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeAddModal(); });
+document.getElementById('gdriveModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeGDriveModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetail(); closeAddModal(); closeGDriveModal(); } });
+</script>
+</body>
+</html>
